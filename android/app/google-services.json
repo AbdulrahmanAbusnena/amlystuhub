@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "833071963483",
+    "project_id": "amlystuhub",
+    "storage_bucket": "amlystuhub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833071963483:android:8b8406717c7dbeae9e8e7e",
+        "android_client_info": {
+          "package_name": "com.example.amlystuhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_tE_t_2DEbb5PERfJco9AUmPIHa75vaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
