@@ -52,5 +52,25 @@ class AuthService {
     }
   }
 
-  _handleAuthException(FirebaseAuthException e) {}
-}
+  // Sign Out Method
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
+
+  _handleAuthException(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No user found with this email address.';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'email-already-in-use':
+        return 'An account already exists with this email.';
+      case 'invalid-email':
+        return 'The email address is poorly formatted.';
+      case 'weak-password':
+        return 'The password is too weak. Use a stronger password.';
+      default:
+        return e.message ?? 'Authentication failed.';
+    }
+  }
+} 
