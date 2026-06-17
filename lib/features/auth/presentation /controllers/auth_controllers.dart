@@ -51,10 +51,9 @@ class AuthController extends StateNotifier<AuthState> {
     state = AuthState.loading();
 
     try {
-      await _authService.signInWithEmail(
-        email: email.trim(),
-        password: password,
-      );
+      // cleaning up accidental trailing and leading spaces
+      final cleanEmail = email.trim();
+      await _authService.signInWithEmail(email: cleanEmail, password: password);
       state = AuthState.authenticated();
     } catch (e) {
       state = AuthState.error(_cleanErrorMessage(e.toString()));
