@@ -46,6 +46,11 @@ class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
 
   AuthController(this._authService) : super(AuthState.initial());
+
+  void resetState() {
+    state = AuthState.initial();
+  }
+
   // login
   Future<void> login(String email, String password) async {
     state = AuthState.loading();
