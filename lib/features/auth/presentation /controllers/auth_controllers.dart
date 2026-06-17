@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../data/services/auth_service.dart';
 
-enum AuthStatus { initial, authenticated, unauthenticated, unknown }
+enum AuthStatus { initial, loading, authenticated, error }
 
 class AuthState {
   final AuthStatus status;
@@ -16,9 +16,9 @@ class AuthState {
   factory AuthState.initial() => AuthState(status: AuthStatus.initial);
   factory AuthState.authenticated() =>
       AuthState(status: AuthStatus.authenticated);
-  factory AuthState.unauthenticated() =>
-      AuthState(status: AuthStatus.unauthenticated);
-  factory AuthState.unknown() => AuthState(status: AuthStatus.unknown);
+  factory AuthState.loading() => AuthState(status: AuthStatus.loading);
+  factory AuthState.error(String message) =>
+      AuthState(status: AuthStatus.error, errorMessage: message);
 }
 
 // instantiating our data service using riverpod
@@ -46,4 +46,8 @@ class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
 
   AuthController(this._authService) : super(AuthState.initial());
+
+  Future<void> login(String email, String password) async {
+    state = AuthState.loading();
+  }
 }
