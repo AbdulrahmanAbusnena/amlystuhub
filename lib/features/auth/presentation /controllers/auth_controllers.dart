@@ -74,6 +74,17 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  // logout
+  Future<void> logout() async {
+    state = AuthState.loading();
+    try {
+      await _authService.signOut();
+      state = AuthState.initial();
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
+
   String _cleanErrorMessage(String rawError) {
     if (rawError.contains('Exception:')) {
       return rawError.replaceAll('Exception:', '').trim();
