@@ -49,5 +49,22 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> login(String email, String password) async {
     state = AuthState.loading();
+
+    try {
+      await _authService.signInWithEmail(
+        email: email.trim(),
+        password: password,
+      );
+      state = AuthState.authenticated();
+    } catch (e) {
+      state = AuthState.error(_cleanErrorMessage(e.toString()));
+    }
+  }
+
+  String _cleanErrorMessage(String rawError) {
+    if (rawError.contains('Exception:')) {
+      return rawError.replaceAll('Exception:', '').trim();
+    }
+    return rawError;
   }
 }
