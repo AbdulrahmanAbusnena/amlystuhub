@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../data/services/auth_service.dart';
 
@@ -38,3 +39,11 @@ final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
   final service = ref.watch(authServiceProvider);
   return AuthController(service);
 });
+
+// Controller Logic
+
+class AuthController extends StateNotifier<AuthState> {
+  final AuthService _authService;
+
+  AuthController(this._authService) : super(AuthState.initial());
+}
