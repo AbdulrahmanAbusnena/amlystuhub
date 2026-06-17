@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -22,6 +24,28 @@ class AuthService {
       return credential;
     } on FirebaseAuthException catch (e) {
       // Rethrow the error so your controller can catch it and show it to the student
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw 'An unexpected error occurred. Please try again.';
+    }
+  }
+
+  // Sign Up Method
+  Future<UserCredential?> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      if (email.trim().toLowerCase().endsWith('@stu.amly.us')) {
+        final credential = await _auth.createUserWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        );
+        return credential;
+      } else {
+        throw 'Please use a valid student email address.';
+      }
+    } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
       throw 'An unexpected error occurred. Please try again.';
