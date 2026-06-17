@@ -32,14 +32,28 @@ class UserModel {
     );
   }
 
+  // Converting FireStore JSON map data into Dart
+  factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
+    return UserModel(
+      uid: documentId,
+      name: map['fullName'] ?? '',
+      email: map['email'] ?? '',
+      role: map['role'] ?? 'student',
+      gradeLevel: map['gradeLevel'] ?? 9,
+      isApStudent: map['isApStudent'] ?? false,
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+    );
+  }
+  // Converting Dart back to JSON for Firestore writing
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
+      'fullName': name,
       'email': email,
       'role': role,
       'gradeLevel': gradeLevel,
       'isApStudent': isApStudent,
       'createdAt': Timestamp.fromDate(createdAt),
+      // No need to include uid here if it's already used as the Document ID
     };
   }
 }
