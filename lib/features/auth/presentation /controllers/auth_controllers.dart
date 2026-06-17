@@ -29,3 +29,12 @@ final authStreamProvider = StreamProvider<User?>((ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
 });
+
+// managing the manual registration and login state of the user
+
+final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
+  ref,
+) {
+  final service = ref.watch(authServiceProvider);
+  return AuthController(service);
+});
