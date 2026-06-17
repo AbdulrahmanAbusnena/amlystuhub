@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -73,4 +71,4 @@ class AuthService {
         return e.message ?? 'Authentication failed.';
     }
   }
-} 
+}
