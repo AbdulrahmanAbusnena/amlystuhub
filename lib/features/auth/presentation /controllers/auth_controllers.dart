@@ -46,7 +46,7 @@ class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
 
   AuthController(this._authService) : super(AuthState.initial());
-
+  // login
   Future<void> login(String email, String password) async {
     state = AuthState.loading();
 
@@ -54,6 +54,20 @@ class AuthController extends StateNotifier<AuthState> {
       // cleaning up accidental trailing and leading spaces
       final cleanEmail = email.trim();
       await _authService.signInWithEmail(email: cleanEmail, password: password);
+      state = AuthState.authenticated();
+    } catch (e) {
+      state = AuthState.error(_cleanErrorMessage(e.toString()));
+    }
+  }
+
+  // registration
+  Future<void> register(String email, String password) async {
+    state = AuthState.loading();
+    try {
+      // Clean it here too just to be bulletproof
+      final cleanEmail = email.trim();
+
+      await _authService.signUpWithEmail(email: cleanEmail, password: password);
       state = AuthState.authenticated();
     } catch (e) {
       state = AuthState.error(_cleanErrorMessage(e.toString()));
