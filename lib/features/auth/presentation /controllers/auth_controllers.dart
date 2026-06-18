@@ -66,13 +66,26 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   // registration
-  Future<void> register(String email, String password) async {
+  Future<void> register(
+    String name,
+    String email,
+    String password,
+    int gradeLevel,
+    bool isApStudent,
+  ) async {
     state = AuthState.loading();
     try {
       // Clean it here too just to be bulletproof
       final cleanEmail = email.trim();
+      final cleanName = name.trim();
 
-      await _authService.signUpWithEmail(email: cleanEmail, password: password);
+      await _authService.signUpWithEmail(
+        name: cleanName,
+        email: cleanEmail,
+        password: password,
+        gradeLevel: gradeLevel,
+        isApStudent: isApStudent,
+      );
       state = AuthState.authenticated();
     } catch (e) {
       state = AuthState.error(_cleanErrorMessage(e.toString()));
