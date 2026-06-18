@@ -33,28 +33,6 @@ class AuthService {
     }
   }
 
-  // Custom Login
-  Future<String> loginUser({
-    required String email,
-    required String password,
-  }) async {
-    if (email.trim().isEmpty || password.trim().isEmpty) {
-      return 'Please enter both email and password.';
-    }
-
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-      return 'Success';
-    } on FirebaseAuthException catch (e) {
-      return _cleanAuthException(e);
-    } catch (e) {
-      return e.toString();
-    }
-  }
-
   // Sign Up Method
   Future<UserCredential?> signUpWithEmail({
     required String name,
