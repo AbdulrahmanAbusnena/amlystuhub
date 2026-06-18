@@ -1,9 +1,11 @@
+import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   // storing data in firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // stream to listen to authentication state changes.
@@ -33,18 +35,45 @@ class AuthService {
 
   // Sign Up Method
   Future<UserCredential?> signUpWithEmail({
+    required String name,
     required String email,
     required String password,
+    required int gradeLevel,
+    required bool isApStudent,
   }) async {
     try {
-      if (email.trim().toLowerCase().endsWith('@stu.amly.us')) {
-        final credential = await _auth.createUserWithEmailAndPassword(
+      if (email.trim().isEmpty ||
+          name.trim().isEmpty ||
+          password.trim().isEmpty) {
+        throw 'Please fill in all fields.';
+      }
+      if (!email.trim().toLowerCase().endsWith('@stu.amly.us')) {
+        throw 'Access Denied: You must use your official @stu.amly.us school email.';
+      }
+      UserCredential? credential;
+      try {
+        credential = await _auth.createUserWithEmailAndPassword(
           email: email.trim(),
           password: password,
         );
-        return credential;
-      } else {
-        throw 'Please use a valid student email address.';
+        if (credential.user != null) {
+          final newUser = UserModel(
+            uid: credential.user!.uid,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            role: 'student', // Default account registration tier
+            gradeLevel: gradeLevel,
+            isApStudent: isApStudent,
+            createdAt: DateTime.now(),
+          );
+          await _firestore.collection('users').doc(newUser.uid).set({
+            ...newUser.toMap(),
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+        throw 'Success';
+      } on FirebaseAuthException catch (e) {
+        throw _handleAuthException(e);
       }
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
@@ -58,6 +87,7 @@ class AuthService {
     await _auth.signOut();
   }
 
+  // ignore: strict_top_level_inference
   _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
