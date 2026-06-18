@@ -27,9 +27,31 @@ class AuthService {
       return credential;
     } on FirebaseAuthException catch (e) {
       // Rethrow the error so your controller can catch it and show it to the student
-      throw _handleAuthException(e);
+      throw _cleanAuthException(e);
     } catch (e) {
       throw 'An unexpected error occurred. Please try again.';
+    }
+  }
+
+  // Custom Login
+  Future<String> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    if (email.trim().isEmpty || password.trim().isEmpty) {
+      return 'Please enter both email and password.';
+    }
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      return 'Success';
+    } on FirebaseAuthException catch (e) {
+      return _cleanAuthException(e);
+    } catch (e) {
+      return e.toString();
     }
   }
 
@@ -41,44 +63,52 @@ class AuthService {
     required int gradeLevel,
     required bool isApStudent,
   }) async {
+    UserCredential? credential;
+
     try {
       if (email.trim().isEmpty ||
           name.trim().isEmpty ||
           password.trim().isEmpty) {
         throw 'Please fill in all fields.';
       }
+
       if (!email.trim().toLowerCase().endsWith('@stu.amly.us')) {
         throw 'Access Denied: You must use your official @stu.amly.us school email.';
       }
-      UserCredential? credential;
-      try {
-        credential = await _auth.createUserWithEmailAndPassword(
-          email: email.trim(),
-          password: password,
-        );
-        if (credential.user != null) {
-          final newUser = UserModel(
-            uid: credential.user!.uid,
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            role: 'student', // Default account registration tier
-            gradeLevel: gradeLevel,
-            isApStudent: isApStudent,
-            createdAt: DateTime.now(),
-          );
-          await _firestore.collection('users').doc(newUser.uid).set({
-            ...newUser.toMap(),
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-        }
-        throw 'Success';
-      } on FirebaseAuthException catch (e) {
-        throw _handleAuthException(e);
-      }
+
+      credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      final newUser = UserModel(
+        uid: credential.user!.uid,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        role: 'student',
+        gradeLevel: gradeLevel,
+        isApStudent: isApStudent,
+        createdAt: DateTime.now(), // Placeholder value
+      );
+
+      await _firestore.collection('users').doc(newUser.uid).set({
+        ...newUser.toMap(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      return credential;
     } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
+      if (credential?.user != null) {
+        await credential!.user!.delete();
+      }
+
+      throw _cleanAuthException(e);
     } catch (e) {
-      throw 'An unexpected error occurred. Please try again.';
+      if (credential?.user != null) {
+        await credential!.user!.delete();
+      }
+
+      throw 'An unexpected error occurred: ${e.toString()}';
     }
   }
 
@@ -87,21 +117,18 @@ class AuthService {
     await _auth.signOut();
   }
 
-  // ignore: strict_top_level_inference
-  _handleAuthException(FirebaseAuthException e) {
+  String _cleanAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
-        return 'No user found with this email address.';
+        return 'No student record found for this email address.';
       case 'wrong-password':
-        return 'Incorrect password. Please try again.';
+        return 'Incorrect password. Double check and try again.';
       case 'email-already-in-use':
-        return 'An account already exists with this email.';
-      case 'invalid-email':
-        return 'The email address is poorly formatted.';
+        return 'An account is already running under this school email.';
       case 'weak-password':
-        return 'The password is too weak. Use a stronger password.';
+        return 'The chosen password security is too weak.';
       default:
-        return e.message ?? 'Authentication failed.';
+        return e.message ?? 'Authentication operation failed.';
     }
   }
 }
