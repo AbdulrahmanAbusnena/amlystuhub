@@ -131,4 +131,9 @@ class UserModel {
         createdAt.hashCode ^
         lastLoginAt.hashCode;
   }
+
+  @override
+  String toString() {
+    return 'UserModel(uid: $uid, name: $name, email: $email, role: $role, gradeLevel: $gradeLevel, isApStudent: $isApStudent, createdAt: $createdAt, lastLogin: $lastLoginAt)';
+  }
 }
