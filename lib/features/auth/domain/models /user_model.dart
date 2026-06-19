@@ -72,11 +72,56 @@ class UserModel {
       if (lastLoginAt != null) 'lastLoginAt': Timestamp.fromDate(lastLoginAt!),
     };
   }
-}
 
-  UserModel copyWith({ 
+  // creating a copy with modified fields
+  UserModel copyWith({
+    String? uid,
+    String? name,
+    String? email,
+    String? role,
+    int? gradeLevel,
+    bool? isApStudent,
+    DateTime? createdAt,
+    DateTime? lastLoginAt,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      gradeLevel: gradeLevel ?? this.gradeLevel,
+      isApStudent: isApStudent ?? this.isApStudent,
+      createdAt: createdAt ?? this.createdAt,
+      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
+    );
+  }
 
+  /// We have top Check who the users are
+  bool get isStuCoAdmin => role == 'stuco_admin';
 
-  }) { 
+  bool get isStudent => role == 'student';
+
+  bool get isHeadofAcademics => role == 'head_of_academics';
+
+  bool get isSchoolAdmin => role == 'school_admin';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true; 
+
+    return other is UserModel &&
+        other.uid == uid &&
+        other.name == name &&
+        other.email == email &&
+        other.role == role &&
+        other.gradeLevel == gradeLevel &&
+        other.isApStudent == isApStudent &&
+        other.createdAt == createdAt &&
+        other.lastLoginAt == lastLoginAt;
+  } 
+  @override 
+  int get hashCode { 
+    return uid.hasc
+  }
 
 }
