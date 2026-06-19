@@ -8,6 +8,7 @@ class UserModel {
   final int gradeLevel;
   final bool isApStudent;
   final DateTime createdAt;
+  final DateTime? lastLoginAt; // Optional field for tracking last login time
 
   UserModel({
     required this.uid,
@@ -17,6 +18,7 @@ class UserModel {
     required this.gradeLevel,
     required this.isApStudent,
     required this.createdAt,
+    this.lastLoginAt,
   });
 
   factory UserModel.fromDocument(DocumentSnapshot doc) {
@@ -36,7 +38,7 @@ class UserModel {
   factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
     return UserModel(
       uid: documentId,
-      name: map['fullName'] ?? '',
+      name: map['name'] ?? '',
       email: map['email'] ?? '',
       role: map['role'] ?? 'student',
       gradeLevel: map['gradeLevel'] ?? 9,
@@ -47,7 +49,7 @@ class UserModel {
   // Converting Dart back to JSON for Firestore writing
   Map<String, dynamic> toMap() {
     return {
-      'fullName': name,
+      'name': name,
       'email': email,
       'role': role,
       'gradeLevel': gradeLevel,
