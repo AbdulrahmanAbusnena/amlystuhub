@@ -107,7 +107,7 @@ class UserModel {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) return true; 
+    if (identical(this, other)) return true;
 
     return other is UserModel &&
         other.uid == uid &&
@@ -118,10 +118,17 @@ class UserModel {
         other.isApStudent == isApStudent &&
         other.createdAt == createdAt &&
         other.lastLoginAt == lastLoginAt;
-  } 
-  @override 
-  int get hashCode { 
-    return uid.hasc
   }
 
+  @override
+  int get hashCode {
+    return uid.hashCode ^
+        name.hashCode ^
+        email.hashCode ^
+        role.hashCode ^
+        gradeLevel.hashCode ^
+        isApStudent.hashCode ^
+        createdAt.hashCode ^
+        lastLoginAt.hashCode;
+  }
 }
