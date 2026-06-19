@@ -66,12 +66,14 @@ class AuthService {
         role: 'student',
         gradeLevel: gradeLevel,
         isApStudent: isApStudent,
-        createdAt: DateTime.now(), // Placeholder value
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
       );
 
       await _firestore.collection('users').doc(newUser.uid).set({
         ...newUser.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
       });
 
       return credential;
