@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserModel {
   final String uid;
@@ -20,9 +21,19 @@ class UserModel {
     required this.createdAt,
     this.lastLoginAt,
   });
+  // So we have to convert the TimeStamp to DateTime with null checks
+  // ignore: unused_element
+  static DateTime _safeTimestampToDate(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is Timestamp) return value.toDate();
+    return DateTime.now();
+  }
 
   factory UserModel.fromDocument(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>?;
+    if (data == null) {
+      throw Exception('Document data is null');
+    }
     return UserModel(
       uid: doc.id,
       name: data['name'] ?? '',
@@ -30,7 +41,8 @@ class UserModel {
       role: data['role'] ?? '',
       gradeLevel: data['gradeLevel'] ?? 0,
       isApStudent: data['isApStudent'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: _safeTimestampToDate(data['createdAt']),
+      lastLoginAt: _safeTimestampToDate(data['lastLoginAt']),
     );
   }
 
@@ -43,10 +55,12 @@ class UserModel {
       role: map['role'] ?? 'student',
       gradeLevel: map['gradeLevel'] ?? 9,
       isApStudent: map['isApStudent'] ?? false,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: _safeTimestampToDate(map['createdAt']),
+      lastLoginAt: _safeTimestampToDate(map['lastLoginAt']),
     );
   }
-  // Converting Dart back to JSON for Firestore writing
+
+  // Convrt UserModel to Map for Firestore writing
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -55,7 +69,14 @@ class UserModel {
       'gradeLevel': gradeLevel,
       'isApStudent': isApStudent,
       'createdAt': Timestamp.fromDate(createdAt),
-      // No need to include uid here if it's already used as the Document ID
+      if (lastLoginAt != null) 'lastLoginAt': Timestamp.fromDate(lastLoginAt!),
     };
   }
+}
+
+  UserModel copyWith({ 
+
+
+  }) { 
+
 }
