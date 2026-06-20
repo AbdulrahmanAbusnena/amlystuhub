@@ -1,47 +1,54 @@
 import 'package:flutter/material.dart';
 
-class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
-  final String registrationGif;
-  final String fontName;
-  final bool showDotMatrix;
-  final bool useSketchyBorders;
-  final Color customAccent;
+class RetroThemeExtension extends ThemeExtension<RetroThemeExtension> {
+  final Color windowHeaderColor;
+  final Color inputFillColor;
+  final String crtCatAsset;
+  final String customFontFamily;
+  final bool enableBlockShadows;
 
-  AppThemeExtension({
-    required this.registrationGif,
-    required this.fontName,
-    required this.showDotMatrix,
-    required this.useSketchyBorders,
-    required this.customAccent,
+  RetroThemeExtension({
+    required this.windowHeaderColor,
+    required this.inputFillColor,
+    required this.crtCatAsset,
+    required this.customFontFamily,
+    required this.enableBlockShadows,
   });
 
   @override
-  AppThemeExtension copyWith({
-    String? registrationGif,
-    String? fontName,
-    bool? showDotMatrix,
-    bool? useSketchyBorders,
-    Color? customAccent,
+  RetroThemeExtension copyWith({
+    Color? windowHeaderColor,
+    Color? inputFillColor,
+    String? crtCatAsset,
+    String? customFontFamily,
+    bool? enableBlockShadows,
   }) {
-    return AppThemeExtension(
-      registrationGif: registrationGif ?? this.registrationGif,
-      fontName: fontName ?? this.fontName,
-      showDotMatrix: showDotMatrix ?? this.showDotMatrix,
-      useSketchyBorders: useSketchyBorders ?? this.useSketchyBorders,
-      customAccent: customAccent ?? this.customAccent,
+    return RetroThemeExtension(
+      windowHeaderColor: windowHeaderColor ?? this.windowHeaderColor,
+      inputFillColor: inputFillColor ?? this.inputFillColor,
+      crtCatAsset: crtCatAsset ?? this.crtCatAsset,
+      customFontFamily: customFontFamily ?? this.customFontFamily,
+      enableBlockShadows: enableBlockShadows ?? this.enableBlockShadows,
     );
   }
 
   @override
-  AppThemeExtension lerp(ThemeExtension<AppThemeExtension>? other, double t) {
-    if (other is! AppThemeExtension) return this;
-    return AppThemeExtension(
-      registrationGif: other.registrationGif,
-      fontName: other.fontName,
-      showDotMatrix: t < 0.5 ? showDotMatrix : other.showDotMatrix,
-      useSketchyBorders: t < 0.5 ? useSketchyBorders : other.useSketchyBorders,
-      customAccent:
-          Color.lerp(customAccent, other.customAccent, t) ?? customAccent,
+  RetroThemeExtension lerp(
+    ThemeExtension<RetroThemeExtension>? other,
+    double t,
+  ) {
+    if (other is! RetroThemeExtension) return this;
+    return RetroThemeExtension(
+      windowHeaderColor:
+          Color.lerp(windowHeaderColor, other.windowHeaderColor, t) ??
+          windowHeaderColor,
+      inputFillColor:
+          Color.lerp(inputFillColor, other.inputFillColor, t) ?? inputFillColor,
+      crtCatAsset: other.crtCatAsset,
+      customFontFamily: other.customFontFamily,
+      enableBlockShadows: t < 0.5
+          ? enableBlockShadows
+          : other.enableBlockShadows,
     );
   }
 }
