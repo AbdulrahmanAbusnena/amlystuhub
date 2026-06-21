@@ -82,4 +82,25 @@ class RetroWindowShell extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildHeaderBtn(String label) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.4),
+        border: Border.all(color: Colors.black, width: 1.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
 }
