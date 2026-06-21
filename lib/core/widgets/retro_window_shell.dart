@@ -18,7 +18,7 @@ class RetroWindowShell extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               border: Border.all(color: theme.colorScheme.onSurface, width: 2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(0),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -35,8 +35,8 @@ class RetroWindowShell extends StatelessWidget {
                       bottom: BorderSide(color: Colors.black, width: 2),
                     ),
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+                      topLeft: Radius.circular(0),
+                      topRight: Radius.circular(0),
                     ),
                   ),
                   child: Row(

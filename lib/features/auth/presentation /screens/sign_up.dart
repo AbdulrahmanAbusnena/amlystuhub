@@ -18,6 +18,27 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return RetroWindowShell(title: title, child: child);
+    return RetroWindowShell(
+      title: 'REGISTRATION',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: 90,
+              height: 90,
+              color: Colors.grey[300],
+              child: Image.asset(
+                "assets/cat1.webp",
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, _, _) =>
+                    const Icon(Icons.computer, size: 40),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
