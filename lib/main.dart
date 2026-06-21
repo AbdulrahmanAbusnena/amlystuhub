@@ -31,7 +31,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Amly Student Hub',
+      title: 'AmlyStuHub',
       theme: themeProviderState
           .themeData, // Pulls the active raw ThemeData palette
       home: SignUp(),
