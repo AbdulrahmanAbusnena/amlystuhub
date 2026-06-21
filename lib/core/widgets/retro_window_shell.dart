@@ -47,14 +47,14 @@ class RetroWindowShell extends StatelessWidget {
                         children: [
                           const Text(
                             '🟡 🟢 🔴 ',
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 20),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             title,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 25,
                               color: Colors.black,
                             ),
                           ),
@@ -86,7 +86,7 @@ class RetroWindowShell extends StatelessWidget {
   Widget _buildHeaderBtn(String label) {
     return Container(
       width: 24,
-      height: 24,
+      height: 30,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.4),
         border: Border.all(color: Colors.black, width: 1.5),

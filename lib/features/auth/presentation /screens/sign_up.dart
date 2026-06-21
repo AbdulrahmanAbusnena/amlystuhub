@@ -29,12 +29,7 @@ class _SignUpState extends State<SignUp> {
               width: 90,
               height: 90,
               color: Colors.grey[300],
-              child: Image.asset(
-                "assets/cat1.webp",
-                fit: BoxFit.cover,
-                errorBuilder: (ctx, _, _) =>
-                    const Icon(Icons.computer, size: 40),
-              ),
+              child: Image.asset('assets/images/cat2.jpg', fit: BoxFit.cover),
             ),
           ),
         ],
