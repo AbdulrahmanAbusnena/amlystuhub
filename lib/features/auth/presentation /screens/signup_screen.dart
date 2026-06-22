@@ -1,6 +1,7 @@
 import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
+import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // ◄ Switch from manual calls to Riverpod
 
@@ -74,14 +75,14 @@ class _SignUpState extends ConsumerState<SignUp> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-        // Reset state so the snackbar doesn't loop fire on rebuilds
         ref.read(authStateProvider.notifier).resetState();
       } else if (next.status == AuthStatus.authenticated) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('INITIALIZATION SUCCESSFUL! Model synced.'),
-          ),
+          const SnackBar(content: Text('SIGNED UP SUCCESSFULLY!.')),
         );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
 
