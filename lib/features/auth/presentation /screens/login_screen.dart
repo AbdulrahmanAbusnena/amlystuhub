@@ -45,7 +45,12 @@ class _LoginState extends ConsumerState<Login> {
         ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
-
-    return const RetroWindowShell();
+    // UI
+    return const RetroWindowShell(
+      title: 'Welcome Back, Login',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+      ),
+    );
   }
 }
