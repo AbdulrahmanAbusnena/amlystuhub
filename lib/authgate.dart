@@ -1,5 +1,5 @@
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
-import 'package:amlystuhub/features/auth/presentation%20/screens/sign_up.dart';
+import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
