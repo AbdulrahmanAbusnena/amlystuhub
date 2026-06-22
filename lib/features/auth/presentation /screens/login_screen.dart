@@ -70,6 +70,13 @@ class _LoginState extends ConsumerState<Login> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [],
+                  ),
+                ),
               ],
             ),
           ],
@@ -77,4 +84,53 @@ class _LoginState extends ConsumerState<Login> {
       ),
     );
   }
+
+  Widget _builtInputLabel(String label) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      label,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: Colors.black,
+      ),
+    ),
+  );
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required Widget icon,
+    bool obscureText = false,
+  }) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.black, width: 1.5),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: const BoxDecoration(
+            border: Border(right: BorderSide(color: Colors.black, width: 1.5)),
+          ),
+          child: icon,
+        ),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            style: const TextStyle(color: Colors.black, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
