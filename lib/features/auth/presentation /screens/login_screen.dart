@@ -39,17 +39,41 @@ class _LoginState extends ConsumerState<Login> {
       } else if (next.status == AuthStatus.authenticated) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('WELCOME BACK!.')));
+        ).showSnackBar(const SnackBar(content: Text('WELCOME BACK!')));
         Navigator.of(
           context,
         ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
     // UI
-    return const RetroWindowShell(
+    return RetroWindowShell(
       title: 'Welcome Back, Login',
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: 180,
+                    height: 180,
+                    color: Colors.grey[300],
+                    child: Image.asset(
+                      'assets/cat2.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (ctx, _, __) =>
+                          const Icon(Icons.computer, size: 40),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
