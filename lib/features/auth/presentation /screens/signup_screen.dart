@@ -1,11 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
+import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // ◄ Switch from manual calls to Riverpod
 
 class SignUp extends ConsumerStatefulWidget {
-  // ◄ Change to ConsumerStatefulWidget
   const SignUp({super.key});
 
   @override
@@ -13,7 +15,6 @@ class SignUp extends ConsumerStatefulWidget {
 }
 
 class _SignUpState extends ConsumerState<SignUp> {
-  // ◄ Change to ConsumerState
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,7 +46,6 @@ class _SignUpState extends ConsumerState<SignUp> {
       return;
     }
 
-    // ◄ Trigger your Riverpod Controller method seamlessly
     ref
         .read(authStateProvider.notifier)
         .register(
@@ -69,25 +69,22 @@ class _SignUpState extends ConsumerState<SignUp> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // ◄ Listen to state updates to handle loading boxes and snackbar toasts
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.status == AuthStatus.loading;
 
-    // Listen specifically for error anomalies to throw a context pop snackbar
     ref.listen<AuthState>(authStateProvider, (previous, next) {
       if (next.status == AuthStatus.error && next.errorMessage != null) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-        // Reset state so the snackbar doesn't loop fire on rebuilds
         ref.read(authStateProvider.notifier).resetState();
       } else if (next.status == AuthStatus.authenticated) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('INITIALIZATION SUCCESSFUL! Model synced.'),
-          ),
+          const SnackBar(content: Text('SIGNED UP SUCCESSFULLY!.')),
         );
-        // Route path to main app workspace view dashboard here if needed
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
 
@@ -110,7 +107,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                     child: Image.asset(
                       'assets/cat1.webp',
                       fit: BoxFit.cover,
-                      errorBuilder: (ctx, _, __) =>
+                      errorBuilder: (ctx, _, _) =>
                           const Icon(Icons.computer, size: 40),
                     ),
                   ),
@@ -324,7 +321,7 @@ class _SignUpState extends ConsumerState<SignUp> {
             Center(
               child: GestureDetector(
                 onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const SignIn()),
+                  MaterialPageRoute(builder: (_) => const Login()),
                 ),
                 child: RichText(
                   text: TextSpan(
