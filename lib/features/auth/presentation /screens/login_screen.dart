@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+class Login extends ConsumerStatefulWidget {
+  const Login({super.key});
 
   @override
-  State<SignIn> createState() => _SignInState();
+  ConsumerState<Login> createState() => _LoginState();
 }
 
-class _SignInState extends State<SignIn> {
+class _LoginState extends ConsumerState<Login> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return const Placeholder();
   }
 }

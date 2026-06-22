@@ -12,7 +12,6 @@ class SignUp extends ConsumerStatefulWidget {
 }
 
 class _SignUpState extends ConsumerState<SignUp> {
-  // ◄ Change to ConsumerState
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -319,7 +318,7 @@ class _SignUpState extends ConsumerState<SignUp> {
             Center(
               child: GestureDetector(
                 onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const SignIn()),
+                  MaterialPageRoute(builder: (_) => const Login()),
                 ),
                 child: RichText(
                   text: TextSpan(
