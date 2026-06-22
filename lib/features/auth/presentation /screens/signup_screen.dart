@@ -107,7 +107,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                     child: Image.asset(
                       'assets/cat1.webp',
                       fit: BoxFit.cover,
-                      errorBuilder: (ctx, _, __) =>
+                      errorBuilder: (ctx, _, _) =>
                           const Icon(Icons.computer, size: 40),
                     ),
                   ),
