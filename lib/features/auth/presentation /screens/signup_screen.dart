@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // ◄ Switch from manual calls to Riverpod
 
 class SignUp extends ConsumerStatefulWidget {
-  // ◄ Change to ConsumerStatefulWidget
   const SignUp({super.key});
 
   @override
@@ -45,7 +44,6 @@ class _SignUpState extends ConsumerState<SignUp> {
       return;
     }
 
-    // ◄ Trigger your Riverpod Controller method seamlessly
     ref
         .read(authStateProvider.notifier)
         .register(
@@ -69,11 +67,9 @@ class _SignUpState extends ConsumerState<SignUp> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // ◄ Listen to state updates to handle loading boxes and snackbar toasts
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.status == AuthStatus.loading;
 
-    // Listen specifically for error anomalies to throw a context pop snackbar
     ref.listen<AuthState>(authStateProvider, (previous, next) {
       if (next.status == AuthStatus.error && next.errorMessage != null) {
         ScaffoldMessenger.of(
@@ -87,7 +83,6 @@ class _SignUpState extends ConsumerState<SignUp> {
             content: Text('INITIALIZATION SUCCESSFUL! Model synced.'),
           ),
         );
-        // Route path to main app workspace view dashboard here if needed
       }
     });
 
