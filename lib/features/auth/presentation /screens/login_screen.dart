@@ -74,7 +74,22 @@ class _LoginState extends ConsumerState<Login> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [],
+                    children: [
+                      _buildInputLabel('▶ Email:_'),
+                      _buildInputField(
+                        controller: _emailController,
+                        hintText: '[Enter Your Email]',
+                        icon: const Text('💾', style: TextStyle(fontSize: 16)),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInputLabel('▶ Password:_'),
+                      _buildInputField(
+                        controller: _passwordController,
+                        hintText: '[Enter Password....]',
+                        obscureText: true,
+                        icon: const Text('🔑', style: TextStyle(fontSize: 16)),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -85,7 +100,7 @@ class _LoginState extends ConsumerState<Login> {
     );
   }
 
-  Widget _builtInputLabel(String label) => Padding(
+  Widget _buildInputLabel(String label) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(
       label,
