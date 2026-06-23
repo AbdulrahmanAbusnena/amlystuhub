@@ -4,6 +4,7 @@ import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.d
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class Login extends ConsumerStatefulWidget {
   const Login({super.key});
@@ -151,9 +152,7 @@ class _LoginState extends ConsumerState<Login> {
 
             Center(
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const SignUp()),
-                ),
+                onTap: () => context.go('/signup'),
                 child: RichText(
                   text: TextSpan(
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
