@@ -39,9 +39,36 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           ),
           Spacer(),
 
+          Expanded(
+            child: GestureDetector(
+              onTap: () => context.go('/login'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  border: Border.all(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'Login In',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
           TextButton(
-            onPressed: () => context.go('/login'),
-            child: Text('SIGN IN', style: TextStyle(fontSize: 24)),
+            onPressed: () => context.go('/signup'),
+            child: Text(
+              'Sign Up',
+              style: TextStyle(fontSize: 24, color: Colors.black),
+            ),
           ),
         ],
       ),
