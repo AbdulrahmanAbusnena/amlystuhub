@@ -1,5 +1,6 @@
 import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
+import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,7 @@ class _LoginState extends ConsumerState<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void loginUser() {
+  void _loginUser() {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -120,29 +121,59 @@ class _LoginState extends ConsumerState<Login> {
                     ],
                   ),
                 ),
-                SizedBox(height: 50),
-                InkWell(
-                  onTap: isLoading ? null : _registerUser,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: isLoading ? Colors.grey : theme.primaryColor,
-                      border: Border.all(color: Colors.black, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      isLoading ? 'INITIALIZING...' : 'Sign Up',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
-                    ),
+              ],
+            ),
+            SizedBox(height: 50),
+            InkWell(
+              onTap: isLoading ? null : _loginUser,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: isLoading
+                      ? Colors.grey
+                      : Theme.of(context).primaryColor,
+                  border: Border.all(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  isLoading ? 'AUTHENTICATING...' : 'Login',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
                   ),
                 ),
-              ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Center(
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const SignUp()),
+                ),
+                child: RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
+                    children: const [
+                      TextSpan(text: "You don't have an account? "),
+                      TextSpan(
+                        text: 'Sign Up',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
