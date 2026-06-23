@@ -1,9 +1,9 @@
 import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
-import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // ◄ Switch from manual calls to Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart'; // ◄ Switch from manual calls to Riverpod
 
 class SignUp extends ConsumerStatefulWidget {
   const SignUp({super.key});
@@ -39,9 +39,12 @@ class _SignUpState extends ConsumerState<SignUp> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
+    // Validate that text inputs aren't empty before transmission
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all database entry slots.')),
+        const SnackBar(
+          content: Text('Please fill out all terminal security fields.'),
+        ),
       );
       return;
     }
@@ -78,13 +81,6 @@ class _SignUpState extends ConsumerState<SignUp> {
           context,
         ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
         ref.read(authStateProvider.notifier).resetState();
-      } else if (next.status == AuthStatus.authenticated) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('SIGNED UP SUCCESSFULLY!.')),
-        );
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
 
@@ -320,9 +316,7 @@ class _SignUpState extends ConsumerState<SignUp> {
 
             Center(
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const Login()),
-                ),
+                onTap: () => context.go('/login'),
                 child: RichText(
                   text: TextSpan(
                     style: theme.textTheme.bodyMedium?.copyWith(
