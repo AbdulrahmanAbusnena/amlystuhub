@@ -20,7 +20,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 
   Widget _buildheader(BuildContext context) {
     return Container(
-      height: 72,
+      height: 80,
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       decoration: BoxDecoration(
         border: Border(
@@ -39,23 +39,32 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           ),
           Spacer(),
 
-          Expanded(
-            child: GestureDetector(
-              onTap: () => context.go('/login'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  border: Border.all(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'Login In',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.black,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: SizedBox(
+                width: 120,
+                height: 100,
+                child: InkWell(
+                  onTap: () => context.go('/login'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      border: Border.all(color: Colors.black, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Login In',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
               ),
