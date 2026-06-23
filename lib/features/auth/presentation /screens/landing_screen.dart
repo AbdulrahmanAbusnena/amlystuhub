@@ -85,7 +85,41 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   }
 
   Widget _buildbody(BuildContext context) {
-    return Container();
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'AMLYSTUHUB.',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'A centralized student platform designed for managing academic tasks and collaborative projects.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () => context.go('/login'),
+                child: const Text('GET STARTED'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buidfooter(BuildContext context) {
