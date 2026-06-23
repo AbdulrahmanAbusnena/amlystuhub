@@ -26,7 +26,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the theme using Riverpod's ref pointer
     final themeProviderState = ref.watch(appThemeProvider);
     final router = ref.watch(routerProvider);
 
