@@ -1,4 +1,4 @@
-import 'package:amlystuhub/authgate.dart';
+import 'package:amlystuhub/core/router/go_router.dart';
 import 'package:amlystuhub/core/theme/theme_controller.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
@@ -28,13 +28,13 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the theme using Riverpod's ref pointer
     final themeProviderState = ref.watch(appThemeProvider);
+    final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'AmlyStuHub',
-      theme: themeProviderState
-          .themeData, // Pulls the active raw ThemeData palette
-      home: SignUp(),
+      theme: themeProviderState.themeData,
+      routerConfig: router,
     );
   }
 }
