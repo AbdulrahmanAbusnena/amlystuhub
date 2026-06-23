@@ -16,10 +16,11 @@ class _SignUpState extends ConsumerState<SignUp> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
+  // Default Data
   String _selectedGrade = 'Grade 10';
   bool _isApStudent = false;
 
+  // Grading List
   final Map<String, Color> _gradeColors = {
     'Grade 9': const Color(0xFFFDE49E),
     'Grade 10': const Color(0xFFAED6F1),
@@ -32,6 +33,7 @@ class _SignUpState extends ConsumerState<SignUp> {
     return int.tryParse(numericString) ?? 10;
   }
 
+  // Registration logic
   void _registerUser() {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
@@ -66,7 +68,7 @@ class _SignUpState extends ConsumerState<SignUp> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    // Auth controller setup
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.status == AuthStatus.loading;
 
