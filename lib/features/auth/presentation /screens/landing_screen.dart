@@ -21,7 +21,30 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   }
 
   Widget _buildheader(BuildContext, context) {
-    return Container();
+    return Container(
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            'AMLYSTUHUB',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.go('/login'),
+            child: const Text('SIGN IN'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildbody(BuildContext, context) {
