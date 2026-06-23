@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
+import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
@@ -14,7 +15,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final authStateAsync = ref.watch(authStreamProvider);
   final authStream = ref.watch(authServiceProvider).authStateChanges;
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/landing',
     refreshListenable: GoRouterRefreshStream(authStream),
 
     redirect: (context, state) {
@@ -43,6 +44,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const Dashboard(),
+      ),
+      GoRoute(
+        path: '/landing',
+        builder: (context, state) => const LandingScreen(),
       ),
     ],
   );

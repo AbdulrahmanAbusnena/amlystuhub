@@ -29,12 +29,11 @@ class MyApp extends ConsumerWidget {
     final themeProviderState = ref.watch(appThemeProvider);
     final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'AmlyStuHub',
       theme: themeProviderState.themeData,
-      //  routerConfig: router,
-      home: LandingScreen(),
+      routerConfig: router,
     );
   }
 }

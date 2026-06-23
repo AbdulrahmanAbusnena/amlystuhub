@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class LandingScreen extends ConsumerStatefulWidget {
   const LandingScreen({super.key});
@@ -13,14 +14,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(child: Column(children: [
-
-          ],
-        )),
+      body: SafeArea(child: Column(children: [_buildheader(context)])),
     );
   }
 
-  Widget _buildheader(BuildContext, context) {
+  Widget _buildheader(BuildContext context) {
     return Container(
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -36,22 +34,25 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
+              fontSize: 24,
             ),
           ),
+          Spacer(),
+
           TextButton(
             onPressed: () => context.go('/login'),
-            child: const Text('SIGN IN'),
+            child: Text('SIGN IN', style: TextStyle(fontSize: 24)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildbody(BuildContext, context) {
+  Widget _buildbody(BuildContext context) {
     return Container();
   }
 
-  Widget _buidfooter(BuildContext, context) {
+  Widget _buidfooter(BuildContext context) {
     return Container();
   }
 }
