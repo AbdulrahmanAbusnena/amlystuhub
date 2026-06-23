@@ -27,7 +27,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 1. Guard Condition: If the student is not logged in, force them to stay on auth screens
       if (user == null) {
-        return isLoggingIn ? null : '/login';
+        return isLoggingIn ? null : '/landing';
       }
 
       // 2. Guard Condition: If they are logged in and trying to go to login/signup, send them to dashboard
