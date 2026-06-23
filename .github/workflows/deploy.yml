@@ -1,48 +1,40 @@
-name: Deploy Flutter Web to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches:
-      - master # Triggers the build every time you push to your main branch
+      - master # Triggers the build on push to the master branch
 
 permissions:
-  contents: write # Allows GitHub to write the built files to your pages branch
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout your code
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Java environment (needed for flutter tools)
-      - name: Setup Java Environment
+      - name: Install Java (Required for Flutter)
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 3. Install and configure Flutter
-      - name: Setup Flutter Framework
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2' # Matches your current project framework environment
           channel: 'stable'
-          cache: true
 
-      # 4. Pull dependencies
-      - name: Install Project Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      # 5. Build Flutter Web artifact with base-href matching repository setup
-      - name: Compile Web Production Build
-        run: flutter build web --base-href "/${{ github.event.repository.name }}/"
+      - name: Build Web App
+        run: flutter build web --base-href "/amlystuhub/"
 
-      # 6. Deploy the compiled build target directory to GitHub Pages branch
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build/web # The built files live here
-          branch: gh-pages  # The dedicated branch where GitHub hosts your site
+          folder: build/web # The folder the action will deploy
+          branch: gh-pages # The branch the action will deploy to
