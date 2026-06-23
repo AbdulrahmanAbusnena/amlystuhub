@@ -42,7 +42,7 @@ class _LoginState extends ConsumerState<Login> {
         ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
-
+    // UI
     return RetroWindowShell(
       title: 'Welcome Back, Login',
       child: Padding(
@@ -103,6 +103,28 @@ class _LoginState extends ConsumerState<Login> {
                       ),
                       const SizedBox(height: 40),
                     ],
+                  ),
+                ),
+                SizedBox(height: 50),
+                InkWell(
+                  onTap: isLoading ? null : _registerUser,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: isLoading ? Colors.grey : theme.primaryColor,
+                      border: Border.all(color: Colors.black, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      isLoading ? 'INITIALIZING...' : 'Sign Up',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
               ],
