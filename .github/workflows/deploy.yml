@@ -3,7 +3,7 @@ name: Deploy Flutter Web to GitHub Pages
 on:
   push:
     branches:
-      - main # Triggers the build every time you push to your main branch
+      - master # Triggers the build every time you push to your main branch
 
 permissions:
   contents: write # Allows GitHub to write the built files to your pages branch
