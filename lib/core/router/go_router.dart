@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // screens
@@ -9,12 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authStateAsync = ref.watch(authStreamProvider);
-
+  final authStream = ref.watch(authServiceProvider).authStateChanges;
   return GoRouter(
     initialLocation: '/login',
-    // Redirect logic acts as our security guard gatekeeper
+    refreshListenable: GoRouterRefreshStream(authStream),
+
     redirect: (context, state) {
-      // Get the value of the current stream snapshot (null means logged out)
       final user = authStateAsync.value;
 
       final isLoggingIn =
@@ -44,3 +47,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+      (dynamic _) => notifyListeners(),
+    );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
