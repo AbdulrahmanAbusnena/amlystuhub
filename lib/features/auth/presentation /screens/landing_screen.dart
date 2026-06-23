@@ -89,6 +89,22 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   }
 
   Widget _buidfooter(BuildContext context) {
-    return Container();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            '© 2026 AMLYSTUHUB',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
   }
 }
