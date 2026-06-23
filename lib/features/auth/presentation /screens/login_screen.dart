@@ -24,9 +24,6 @@ class _LoginState extends ConsumerState<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // auth controller setup
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.status == AuthState.loading();
 
@@ -45,22 +42,23 @@ class _LoginState extends ConsumerState<Login> {
         ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
       }
     });
-    // UI
+
     return RetroWindowShell(
       title: 'Welcome Back, Login',
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 30),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    width: 180,
-                    height: 180,
+                    width: 210,
+                    height: 210,
                     color: Colors.grey[300],
                     child: Image.asset(
                       'assets/cat2.jpg',
@@ -75,13 +73,27 @@ class _LoginState extends ConsumerState<Login> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Text(
+                        'SYSTEM ACCESS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Please authenticate via your authorized @stu.amly.us credentials to initialize connection.',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
+                      const SizedBox(height: 20),
                       _buildInputLabel('▶ Email:_'),
                       _buildInputField(
                         controller: _emailController,
                         hintText: '[Enter Your Email]',
                         icon: const Text('💾', style: TextStyle(fontSize: 16)),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 35),
                       _buildInputLabel('▶ Password:_'),
                       _buildInputField(
                         controller: _passwordController,
@@ -89,6 +101,7 @@ class _LoginState extends ConsumerState<Login> {
                         obscureText: true,
                         icon: const Text('🔑', style: TextStyle(fontSize: 16)),
                       ),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -100,6 +113,7 @@ class _LoginState extends ConsumerState<Login> {
     );
   }
 
+  // Custom Build Input
   Widget _buildInputLabel(String label) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(
@@ -111,7 +125,7 @@ class _LoginState extends ConsumerState<Login> {
       ),
     ),
   );
-
+  // Custom Field Input
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
@@ -121,12 +135,12 @@ class _LoginState extends ConsumerState<Login> {
     decoration: BoxDecoration(
       color: Colors.white,
       border: Border.all(color: Colors.black, width: 1.5),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(20),
     ),
     child: Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             border: Border(right: BorderSide(color: Colors.black, width: 1.5)),
           ),
@@ -136,7 +150,7 @@ class _LoginState extends ConsumerState<Login> {
           child: TextField(
             controller: controller,
             obscureText: obscureText,
-            style: const TextStyle(color: Colors.black, fontSize: 14),
+            style: const TextStyle(color: Colors.black, fontSize: 20),
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
