@@ -15,6 +15,21 @@ class _LoginState extends ConsumerState<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  void loginUser() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all validation access fields.'),
+        ),
+      );
+      return;
+    }
+    ref.read(authStateProvider.notifier).login(email, password);
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
