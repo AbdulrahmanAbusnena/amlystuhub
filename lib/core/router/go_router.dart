@@ -12,44 +12,47 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authStateAsync = ref.watch(authStreamProvider);
+  // Listen to the stream for reactive listener updates WITHOUT destroying the router object
   final authStream = ref.watch(authServiceProvider).authStateChanges;
 
   return GoRouter(
-    initialLocation: '/', // Changing root to the default clean path
+    initialLocation: '/landing', // Restoring your exact layout route target
     refreshListenable: GoRouterRefreshStream(authStream),
 
     redirect: (context, state) {
-      final user = authStateAsync.value;
+      // READ the current value inside the redirect callback instead of watching it at the provider root
+      final user = ref.read(authStreamProvider).value;
 
-      // Classify the routes the user is targeting
-      final isRootOrLanding = state.matchedLocation == '/';
-      final isAuthScreen =
+      final isLoggingInOrLanding =
           state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup';
+          state.matchedLocation == '/signup' ||
+          state.matchedLocation == '/landing';
 
+      // 1. Guard Condition: User is NOT logged in
       if (user == null) {
-        // If they are trying to reach login or signup, let them pass.
-        // If they are trying to access dashboard or anything else, bounce to root (Landing Screen).
-        return isAuthScreen ? null : '/';
+        // Force them to landing or auth paths. If they try to go to dashboard, slam the door.
+        return isLoggingInOrLanding ? null : '/landing';
       }
 
-      // If they are logged in, do not let them see login, signup, or the landing page.
-      if (isAuthScreen || isRootOrLanding) {
+      // 2. Guard Condition: User IS logged in
+      // If they are authenticated, intercept landing/login/signup and forward to dashboard
+      if (isLoggingInOrLanding) {
         return '/dashboard';
       }
 
-      // No redirect needed, proceed to target protected location (e.g., dashboard)
+      // No redirect needed, proceed to target location safely
       return null;
     },
     routes: [
-      // Landing page now cleanly anchors the root URL
-      GoRoute(path: '/', builder: (context, state) => const LandingScreen()),
       GoRoute(path: '/login', builder: (context, state) => const Login()),
       GoRoute(path: '/signup', builder: (context, state) => const SignUp()),
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const Dashboard(),
+      ),
+      GoRoute(
+        path: '/landing',
+        builder: (context, state) => const LandingScreen(),
       ),
     ],
   );

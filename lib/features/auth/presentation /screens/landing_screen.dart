@@ -132,12 +132,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                   width: 200,
                   height: 56,
                   child: InkWell(
-                    onTap: () => context.go('/login'),
+                    onTap: () => context.go('/signup'),
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors
-                            .white, // Stark contrast pop off dark surface canvas
+                        color: Colors.white,
                         border: Border.all(
                           color: const Color(0xFF1F222A),
                           width: 1,
