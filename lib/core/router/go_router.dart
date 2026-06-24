@@ -12,30 +12,35 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authStateAsync = ref.watch(authStreamProvider);
+  // Listen to the stream for reactive listener updates WITHOUT destroying the router object
   final authStream = ref.watch(authServiceProvider).authStateChanges;
+
   return GoRouter(
-    initialLocation: '/landing',
+    initialLocation: '/landing', // Restoring your exact layout route target
     refreshListenable: GoRouterRefreshStream(authStream),
 
     redirect: (context, state) {
-      final user = authStateAsync.value;
+      // READ the current value inside the redirect callback instead of watching it at the provider root
+      final user = ref.read(authStreamProvider).value;
 
-      final isLoggingIn =
+      final isLoggingInOrLanding =
           state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup';
+          state.matchedLocation == '/signup' ||
+          state.matchedLocation == '/landing';
 
-      // 1. Guard Condition: If the student is not logged in, force them to stay on auth screens
+      // 1. Guard Condition: User is NOT logged in
       if (user == null) {
-        return isLoggingIn ? null : '/landing';
+        // Force them to landing or auth paths. If they try to go to dashboard, slam the door.
+        return isLoggingInOrLanding ? null : '/landing';
       }
 
-      // 2. Guard Condition: If they are logged in and trying to go to login/signup, send them to dashboard
-      if (isLoggingIn) {
+      // 2. Guard Condition: User IS logged in
+      // If they are authenticated, intercept landing/login/signup and forward to dashboard
+      if (isLoggingInOrLanding) {
         return '/dashboard';
       }
 
-      // No redirect needed, proceed to target location
+      // No redirect needed, proceed to target location safely
       return null;
     },
     routes: [
