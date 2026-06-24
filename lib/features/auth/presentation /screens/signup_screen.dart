@@ -3,6 +3,8 @@ import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_contro
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:amlystuhub/core/widgets/input_field.dart';
+import 'package:amlystuhub/core/widgets/primary_button.dart';
 
 class SignUp extends ConsumerStatefulWidget {
   const SignUp({super.key});
@@ -90,54 +92,76 @@ class _SignUpState extends ConsumerState<SignUp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: 180,
-                    height: 180,
-                    color: Colors.grey[300],
-                    child: Image.asset(
-                      'assets/cat1.webp',
-                      fit: BoxFit.cover,
-                      errorBuilder: (ctx, _, _) =>
-                          const Icon(Icons.computer, size: 40),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInputLabel('▶ Name:_'),
-                      _buildInputField(
-                        controller: _nameController,
-                        hintText: '[Enter Full Name....]',
-                        icon: const Text('⌨️', style: TextStyle(fontSize: 16)),
-                      ),
-                      const SizedBox(height: 18),
-                      _buildInputLabel('▶ Email:_'),
-                      _buildInputField(
-                        controller: _emailController,
-                        hintText: '[Enter Email....]',
-                        icon: const Text('💾', style: TextStyle(fontSize: 16)),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildInputLabel('▶ Password:_'),
-                      _buildInputField(
-                        controller: _passwordController,
-                        hintText: '[Enter Password....]',
-                        obscureText: true,
-                        icon: const Text('🔑', style: TextStyle(fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+               LayoutBuilder(
+                 builder: (context, constraints) {
+                   final isSmall = constraints.maxWidth < 800;
+                   final imageSize = isSmall ? 140.0 : 180.0;
+
+                   final imageWidget = ClipRRect(
+                     borderRadius: BorderRadius.circular(16),
+                     child: Container(
+                       width: imageSize,
+                       height: imageSize,
+                       color: Colors.grey[300],
+                       child: Image.asset(
+                         'assets/cat1.webp',
+                         fit: BoxFit.cover,
+                         errorBuilder: (ctx, _, _) =>
+                             const Icon(Icons.computer, size: 40),
+                       ),
+                     ),
+                   );
+
+                   final formColumn = Expanded(
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         _buildInputLabel('▶ Name:_'),
+                         _buildInputField(
+                           controller: _nameController,
+                           hintText: '[Enter Full Name....]',
+                           icon: const Text('⌨️', style: TextStyle(fontSize: 16)),
+                         ),
+                         const SizedBox(height: 18),
+                         _buildInputLabel('▶ Email:_'),
+                         _buildInputField(
+                           controller: _emailController,
+                           hintText: '[Enter Email....]',
+                           icon: const Text('💾', style: TextStyle(fontSize: 16)),
+                         ),
+                         const SizedBox(height: 20),
+                         _buildInputLabel('▶ Password:_'),
+                         _buildInputField(
+                           controller: _passwordController,
+                           hintText: '[Enter Password....]',
+                           obscureText: true,
+                           icon: const Text('🔑', style: TextStyle(fontSize: 16)),
+                         ),
+                       ],
+                     ),
+                   );
+
+                   if (isSmall) {
+                     return Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         imageWidget,
+                         const SizedBox(height: 12),
+                         formColumn,
+                       ],
+                     );
+                   }
+
+                   return Row(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       imageWidget,
+                       const SizedBox(width: 20),
+                       formColumn,
+                     ],
+                   );
+                 },
+               ),
 
             const SizedBox(height: 32),
 
@@ -289,26 +313,10 @@ class _SignUpState extends ConsumerState<SignUp> {
 
             const SizedBox(height: 40),
 
-            InkWell(
-              onTap: isLoading ? null : _registerUser,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: isLoading ? Colors.grey : theme.primaryColor,
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  isLoading ? 'INITIALIZING...' : 'Sign Up',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
+            PrimaryButton(
+              label: isLoading ? 'INITIALIZING...' : 'Sign Up',
+              onPressed: isLoading ? null : _registerUser,
+              width: double.infinity,
             ),
 
             const SizedBox(height: 20),
@@ -360,35 +368,10 @@ class _SignUpState extends ConsumerState<SignUp> {
     required String hintText,
     required Widget icon,
     bool obscureText = false,
-  }) => Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: Colors.black, width: 1.5),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: const BoxDecoration(
-            border: Border(right: BorderSide(color: Colors.black, width: 1.5)),
-          ),
-          child: icon,
-        ),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            style: const TextStyle(color: Colors.black, fontSize: 14),
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    ),
+  }) => InputField(
+    controller: controller,
+    hintText: hintText,
+    icon: icon,
+    obscureText: obscureText,
   );
 }
