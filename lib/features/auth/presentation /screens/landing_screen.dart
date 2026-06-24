@@ -189,9 +189,10 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           // Clearer, standard weight copyright stamp
           Text(
             '© 2026 AMLYSTUHUB',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
 
           // Contact Readouts
@@ -200,7 +201,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               Text(
                 'Contact: abdulrahmanabusnena01@gmail.com',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 24,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(
                     context,
@@ -211,7 +212,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               Text(
                 'Tel: 091609518',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 24,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(
                     context,
