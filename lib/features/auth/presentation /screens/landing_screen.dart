@@ -15,12 +15,15 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildheader(context),
-            Expanded(child: _buildbody(context)),
-            _buidfooter(context),
-          ],
+        child: SelectionArea(
+          // Enables text copying across the entire viewport canvas
+          child: Column(
+            children: [
+              _buildheader(context),
+              Expanded(child: _buildbody(context)),
+              _buidfooter(context),
+            ],
+          ),
         ),
       ),
     );
@@ -45,7 +48,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               fontSize: 24,
             ),
           ),
-          Spacer(),
+          const Spacer(),
 
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -63,10 +66,9 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                       border: Border.all(color: Colors.black, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
-
                     alignment: Alignment.center,
                     child: const Text(
-                      'Login In',
+                      'Log In',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -79,10 +81,13 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             ),
           ),
 
-          Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
+          const Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
           TextButton(
             onPressed: () => context.go('/signup'),
-            child: Text(
+            style: TextButton.styleFrom(
+              enabledMouseCursor: SystemMouseCursors.click,
+            ),
+            child: const Text(
               'Sign Up',
               style: TextStyle(fontSize: 24, color: Colors.black),
             ),
@@ -119,9 +124,50 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('GET STARTED'),
+
+              // RECONSTRUCTED HIGH-CONTRAST PRIMARY ACTION BUTTON
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: SizedBox(
+                  width: 200,
+                  height: 56,
+                  child: InkWell(
+                    onTap: () => context.go('/login'),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors
+                            .white, // Stark contrast pop off dark surface canvas
+                        border: Border.all(
+                          color: const Color(0xFF1F222A),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'GET STARTED',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.black,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -132,18 +178,44 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 
   Widget _buidfooter(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Clearer, standard weight copyright stamp
           Text(
             '© 2026 AMLYSTUHUB',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+
+          // Contact Readouts
+          Row(
+            children: [
+              Text(
+                'Contact: abdulrahmanabusnena01@gmail.com',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(width: 24),
+              Text(
+                'Tel: 091609518',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                ),
+              ),
+            ],
           ),
         ],
       ),
