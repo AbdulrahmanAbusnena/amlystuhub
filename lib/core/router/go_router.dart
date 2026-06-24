@@ -14,40 +14,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   final authStateAsync = ref.watch(authStreamProvider);
   final authStream = ref.watch(authServiceProvider).authStateChanges;
+
   return GoRouter(
-    initialLocation: '/landing',
+    initialLocation: '/', // Changing root to the default clean path
     refreshListenable: GoRouterRefreshStream(authStream),
 
     redirect: (context, state) {
       final user = authStateAsync.value;
 
-      final isLoggingIn =
+      // Classify the routes the user is targeting
+      final isRootOrLanding = state.matchedLocation == '/';
+      final isAuthScreen =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/signup';
 
-      // 1. Guard Condition: If the student is not logged in, force them to stay on auth screens
       if (user == null) {
-        return isLoggingIn ? null : '/landing';
+        // If they are trying to reach login or signup, let them pass.
+        // If they are trying to access dashboard or anything else, bounce to root (Landing Screen).
+        return isAuthScreen ? null : '/';
       }
 
-      // 2. Guard Condition: If they are logged in and trying to go to login/signup, send them to dashboard
-      if (isLoggingIn) {
+      // If they are logged in, do not let them see login, signup, or the landing page.
+      if (isAuthScreen || isRootOrLanding) {
         return '/dashboard';
       }
 
-      // No redirect needed, proceed to target location
+      // No redirect needed, proceed to target protected location (e.g., dashboard)
       return null;
     },
     routes: [
+      // Landing page now cleanly anchors the root URL
+      GoRoute(path: '/', builder: (context, state) => const LandingScreen()),
       GoRoute(path: '/login', builder: (context, state) => const Login()),
       GoRoute(path: '/signup', builder: (context, state) => const SignUp()),
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const Dashboard(),
-      ),
-      GoRoute(
-        path: '/landing',
-        builder: (context, state) => const LandingScreen(),
       ),
     ],
   );
