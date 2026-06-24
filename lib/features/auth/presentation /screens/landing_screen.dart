@@ -200,6 +200,8 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               Text(
                 'Contact: abdulrahmanabusnena01@gmail.com',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   color: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.color?.withOpacity(0.6),
@@ -209,6 +211,8 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               Text(
                 'Tel: 091609518',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   color: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.color?.withOpacity(0.6),
