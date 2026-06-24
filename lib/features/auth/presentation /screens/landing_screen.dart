@@ -14,7 +14,15 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(child: Column(children: [_buildheader(context)])),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildheader(context),
+            Expanded(child: _buildbody(context)),
+            _buidfooter(context),
+          ],
+        ),
+      ),
     );
   }
 
