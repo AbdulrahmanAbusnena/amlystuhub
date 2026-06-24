@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:amlystuhub/core/widgets/primary_button.dart';
+import 'package:amlystuhub/core/widgets/app_header.dart';
+import 'package:amlystuhub/core/widgets/responsive_layout.dart';
 
 class LandingScreen extends ConsumerStatefulWidget {
   const LandingScreen({super.key});
@@ -19,7 +22,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
           // Enables text copying across the entire viewport canvas
           child: Column(
             children: [
-              _buildheader(context),
+              AppHeader(),
               Expanded(child: _buildbody(context)),
               _buidfooter(context),
             ],
@@ -30,9 +33,12 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   }
 
   Widget _buildheader(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isSmall = width < 700;
+
     return Container(
-      height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      height: isSmall ? 64 : 80,
+      padding: EdgeInsets.symmetric(horizontal: isSmall ? 16.0 : 24.0),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
@@ -45,35 +51,32 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
-              fontSize: 24,
+              fontSize: isSmall ? 20 : 24,
             ),
           ),
           const Spacer(),
 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: SizedBox(
-                width: 120,
-                height: 100,
-                child: InkWell(
-                  onTap: () => context.go('/login'),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      border: Border.all(color: Colors.black, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Log In',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: SizedBox(
+              width: isSmall ? 100 : 120,
+              height: isSmall ? 44 : 56,
+              child: InkWell(
+                onTap: () => context.go('/login'),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Log In',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: isSmall ? 14 : 18,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -81,17 +84,33 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             ),
           ),
 
-          const Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
-          TextButton(
-            onPressed: () => context.go('/signup'),
-            style: TextButton.styleFrom(
-              enabledMouseCursor: SystemMouseCursors.click,
+          if (!isSmall) ...[
+            const SizedBox(width: 8),
+            const Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
+            TextButton(
+              onPressed: () => context.go('/signup'),
+              style: TextButton.styleFrom(
+                enabledMouseCursor: SystemMouseCursors.click,
+              ),
+              child: const Text(
+                'Sign Up',
+                style: TextStyle(fontSize: 24, color: Colors.black),
+              ),
             ),
-            child: const Text(
-              'Sign Up',
-              style: TextStyle(fontSize: 24, color: Colors.black),
+          ] else
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: TextButton(
+                onPressed: () => context.go('/signup'),
+                style: TextButton.styleFrom(
+                  enabledMouseCursor: SystemMouseCursors.click,
+                ),
+                child: const Text(
+                  'Sign Up',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -125,48 +144,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               ),
               const SizedBox(height: 40),
 
-              // RECONSTRUCTED HIGH-CONTRAST PRIMARY ACTION BUTTON
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: SizedBox(
-                  width: 200,
-                  height: 56,
-                  child: InkWell(
-                    onTap: () => context.go('/signup'),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                          color: const Color(0xFF1F222A),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'GET STARTED',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_forward_rounded,
-                            color: Colors.black,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              PrimaryButton(
+                label: 'GET STARTED',
+                onPressed: () => context.go('/signup'),
+                width: 200,
+                height: 56,
               ),
             ],
           ),

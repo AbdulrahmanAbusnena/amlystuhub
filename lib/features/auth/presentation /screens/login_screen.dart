@@ -4,6 +4,8 @@ import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:amlystuhub/core/widgets/input_field.dart';
+import 'package:amlystuhub/core/widgets/primary_button.dart';
 
 class Login extends ConsumerStatefulWidget {
   const Login({super.key});
@@ -66,15 +68,16 @@ class _LoginState extends ConsumerState<Login> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 30),
-                ClipRRect(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmall = constraints.maxWidth < 700;
+                final imageSize = isSmall ? 140.0 : 210.0;
+
+                final imageWidget = ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    width: 210,
-                    height: 210,
+                    width: imageSize,
+                    height: imageSize,
                     color: Colors.grey[300],
                     child: Image.asset(
                       'assets/cat2.jpg',
@@ -83,9 +86,9 @@ class _LoginState extends ConsumerState<Login> {
                           const Icon(Icons.computer, size: 40),
                     ),
                   ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
+                );
+
+                final formColumn = Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -120,32 +123,35 @@ class _LoginState extends ConsumerState<Login> {
                       const SizedBox(height: 40),
                     ],
                   ),
-                ),
-              ],
+                );
+
+                if (isSmall) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      imageWidget,
+                      const SizedBox(height: 12),
+                      formColumn,
+                    ],
+                  );
+                }
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 30),
+                    imageWidget,
+                    const SizedBox(width: 20),
+                    formColumn,
+                  ],
+                );
+              },
             ),
             SizedBox(height: 50),
-            InkWell(
-              onTap: isLoading ? null : _loginUser,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: isLoading
-                      ? Colors.grey
-                      : Theme.of(context).primaryColor,
-                  border: Border.all(color: Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  isLoading ? 'AUTHENTICATING...' : 'Login',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
+            PrimaryButton(
+              label: isLoading ? 'AUTHENTICATING...' : 'Login',
+              onPressed: isLoading ? null : _loginUser,
+              width: double.infinity,
             ),
             const SizedBox(height: 20),
 
@@ -197,35 +203,10 @@ class _LoginState extends ConsumerState<Login> {
     required String hintText,
     required Widget icon,
     bool obscureText = false,
-  }) => Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: Colors.black, width: 1.5),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            border: Border(right: BorderSide(color: Colors.black, width: 1.5)),
-          ),
-          child: icon,
-        ),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            style: const TextStyle(color: Colors.black, fontSize: 20),
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    ),
+  }) => InputField(
+    controller: controller,
+    hintText: hintText,
+    icon: icon,
+    obscureText: obscureText,
   );
 }
