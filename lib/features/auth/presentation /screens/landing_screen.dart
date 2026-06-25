@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amlystuhub/core/widgets/primary_button.dart';
 import 'package:amlystuhub/core/widgets/app_header.dart';
-import 'package:amlystuhub/core/widgets/responsive_layout.dart';
 
 class LandingScreen extends ConsumerStatefulWidget {
   const LandingScreen({super.key});
@@ -28,90 +27,6 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildheader(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isSmall = width < 700;
-
-    return Container(
-      height: isSmall ? 64 : 80,
-      padding: EdgeInsets.symmetric(horizontal: isSmall ? 16.0 : 24.0),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            'AMLYSTUHUB',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-              fontSize: isSmall ? 20 : 24,
-            ),
-          ),
-          const Spacer(),
-
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: SizedBox(
-              width: isSmall ? 100 : 120,
-              height: isSmall ? 44 : 56,
-              child: InkWell(
-                onTap: () => context.go('/login'),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    border: Border.all(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Log In',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: isSmall ? 14 : 18,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          if (!isSmall) ...[
-            const SizedBox(width: 8),
-            const Text('/', style: TextStyle(fontSize: 24, color: Colors.black)),
-            TextButton(
-              onPressed: () => context.go('/signup'),
-              style: TextButton.styleFrom(
-                enabledMouseCursor: SystemMouseCursors.click,
-              ),
-              child: const Text(
-                'Sign Up',
-                style: TextStyle(fontSize: 24, color: Colors.black),
-              ),
-            ),
-          ] else
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: TextButton(
-                onPressed: () => context.go('/signup'),
-                style: TextButton.styleFrom(
-                  enabledMouseCursor: SystemMouseCursors.click,
-                ),
-                child: const Text(
-                  'Sign Up',
-                  style: TextStyle(fontSize: 14, color: Colors.black),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
