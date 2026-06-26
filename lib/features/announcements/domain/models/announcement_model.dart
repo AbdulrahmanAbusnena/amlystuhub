@@ -33,4 +33,23 @@ class AnnouncementsModel {
     if (value is Timestamp) return value.toDate();
     return DateTime.now();
   }
+
+  factory AnnouncementsModel.fromDocument(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>?;
+    if (data == null) throw Exception('Announcement data is empty');
+
+    return AnnouncementsModel(
+      id: doc.id,
+      title: data['title'] ?? '',
+      content: data['content'] ?? '',
+      authorId: data['authorId'] ?? '',
+      authorName: data['authorName'] ?? '',
+      authorRole: data['authorRole'] ?? '',
+      category: data['category'] ?? 'General',
+      targetGrades: List<int>.from(data['targetGrades'] ?? []),
+      apOnly: data['apOnly'] ?? false,
+      createdAt: _safeTimestampToDate(data['createdAt']),
+      pinnedByUids: List<String>.from(data['pinnedByUids'] ?? []),
+    );
+  }
 }
