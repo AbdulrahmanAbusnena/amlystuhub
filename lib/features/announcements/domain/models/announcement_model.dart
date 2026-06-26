@@ -28,4 +28,9 @@ class AnnouncementsModel {
     required this.createdAt,
     this.pinnedByUids = const [],
   });
+  // safe timestamping
+  static DateTime _safeTimestampToDate(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    return DateTime.now();
+  }
 }
