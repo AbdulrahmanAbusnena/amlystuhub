@@ -52,4 +52,18 @@ class AnnouncementsModel {
       pinnedByUids: List<String>.from(data['pinnedByUids'] ?? []),
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'content': content,
+      'authorId': authorId,
+      'authorName': authorName,
+      'authorRole': authorRole,
+      'category': category,
+      'targetGrades': targetGrades,
+      'apOnly': apOnly,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'pinnedByUids': pinnedByUids,
+    };
+  }
 }
