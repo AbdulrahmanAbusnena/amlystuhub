@@ -6,7 +6,7 @@ class AnnouncementsModel {
   final String content;
   final String authorId;
   final String authorName;
-  final String authRole; // Role: 'head_of_academics' or 'school_admin
+  final String authorRole; // Role: 'head_of_academics' or 'school_admin
   final String category; // 'AP' 'General' 'Grade 9'
 
   final List<int> targetGrades; // e.g., [10, 11] to restrict visibility
@@ -14,4 +14,18 @@ class AnnouncementsModel {
 
   final DateTime createdAt;
   final List<String> pinnedByUids;
+
+  AnnouncementsModel({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.authorId,
+    required this.authorName,
+    required this.authorRole,
+    required this.category,
+    required this.targetGrades,
+    required this.apOnly,
+    required this.createdAt,
+    this.pinnedByUids = const [],
+  });
 }
