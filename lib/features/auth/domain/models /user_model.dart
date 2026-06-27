@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'user_role.dart';
+
 class UserModel {
   final String uid;
   final String name;
