@@ -1,3 +1,4 @@
+import 'package:amlystuhub/features/auth/domain/models%20/user_role.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AnnouncementsModel {
@@ -6,9 +7,8 @@ class AnnouncementsModel {
   final String content;
   final String authorId;
   final String authorName;
-  final String authorRole; // Role: 'head_of_academics' or 'school_admin
+  final UserRole authorRole;
   final String category; // 'AP' 'General' 'Grade 9'
-
   final List<int> targetGrades; // e.g., [10, 11] to restrict visibility
   final bool apOnly;
 
@@ -44,7 +44,7 @@ class AnnouncementsModel {
       content: data['content'] ?? '',
       authorId: data['authorId'] ?? '',
       authorName: data['authorName'] ?? '',
-      authorRole: data['authorRole'] ?? '',
+      authorRole: UserRole.fromString(data['authorRole'] ?? 'student'),
       category: data['category'] ?? 'General',
       targetGrades: List<int>.from(data['targetGrades'] ?? []),
       apOnly: data['apOnly'] ?? false,
@@ -58,8 +58,8 @@ class AnnouncementsModel {
       'content': content,
       'authorId': authorId,
       'authorName': authorName,
-      'authorRole': authorRole,
       'category': category,
+      'authorRole': authorRole.toSystemString(),
       'targetGrades': targetGrades,
       'apOnly': apOnly,
       'createdAt': Timestamp.fromDate(createdAt),
