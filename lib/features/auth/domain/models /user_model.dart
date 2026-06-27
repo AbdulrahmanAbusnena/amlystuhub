@@ -6,7 +6,7 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
-  final String role;
+  final UserRole role; 
   final int gradeLevel;
   final bool isApStudent;
   final DateTime createdAt;
@@ -39,7 +39,7 @@ class UserModel {
       uid: doc.id,
       name: data['name'] ?? '',
       email: data['email'] ?? '',
-      role: data['role'] ?? '',
+      role: UserRole.fromString(data['role'] ?? 'student'),
       gradeLevel: data['gradeLevel'] ?? 0,
       isApStudent: data['isApStudent'] ?? false,
       createdAt: _safeTimestampToDate(data['createdAt']),
@@ -53,7 +53,7 @@ class UserModel {
       uid: documentId,
       name: map['name'] ?? '',
       email: map['email'] ?? '',
-      role: map['role'] ?? 'student',
+      role: UserRole.fromString(map['role'] ?? 'student'),
       gradeLevel: map['gradeLevel'] ?? 9,
       isApStudent: map['isApStudent'] ?? false,
       createdAt: _safeTimestampToDate(map['createdAt']),
@@ -65,8 +65,8 @@ class UserModel {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'email': email,
-      'role': role,
+      'email': email, 
+      'role': role.toSystemString(), 
       'gradeLevel': gradeLevel,
       'isApStudent': isApStudent,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -79,7 +79,7 @@ class UserModel {
     String? uid,
     String? name,
     String? email,
-    String? role,
+    UserRole? role,
     int? gradeLevel,
     bool? isApStudent,
     DateTime? createdAt,

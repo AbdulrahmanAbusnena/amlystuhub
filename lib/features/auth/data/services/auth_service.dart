@@ -1,20 +1,21 @@
-import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
+import 'package:amlystuhub/features/auth/domain/models /user_model.dart';
+import 'package:amlystuhub/features/auth/domain/models /user_role.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
-  // storing data in firestore
+  // Storing data in firestore
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // stream to listen to authentication state changes.
+  // Stream to listen to authentication state changes.
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // get the current user
+  // Get the current user
   User? get currentUser => _auth.currentUser;
 
-  // sign in with email and password
+  // Sign in with email and password
   Future<UserCredential?> signInWithEmail({
     required String email,
     required String password,
@@ -59,17 +60,19 @@ class AuthService {
         password: password,
       );
 
+      // Instantiating with type-safe UserRole enum instead of a raw String
       final newUser = UserModel(
         uid: credential.user!.uid,
         name: name.trim(),
         email: email.trim().toLowerCase(),
-        role: 'student',
+        role: UserRole.student, // Type-safe initialization
         gradeLevel: gradeLevel,
         isApStudent: isApStudent,
         createdAt: DateTime.now(),
         lastLoginAt: DateTime.now(),
       );
 
+      // Serialize using the updated model map which utilizes role.toSystemString()
       await _firestore.collection('users').doc(newUser.uid).set({
         ...newUser.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
