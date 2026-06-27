@@ -10,7 +10,7 @@ enum UserRole {
         return UserRole.stuCoLead; // Updated lookup
       case 'head_of_academics':
         return UserRole.headOfAcademics;
-      case 'school_admin':
+      case 'stuCoAdmin':
         return UserRole.stuCoAdmin;
       case 'student':
       default:
@@ -25,7 +25,7 @@ enum UserRole {
       case UserRole.headOfAcademics:
         return 'head_of_academics';
       case UserRole.stuCoAdmin:
-        return 'school_admin';
+        return 'stuCoAdmin';
       case UserRole.student:
         return 'student';
     }
