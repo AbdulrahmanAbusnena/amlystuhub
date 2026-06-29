@@ -20,6 +20,10 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     required bool apOnly,
     required UserModel author,
   }) async {
+    state = AnnouncementState.loading();
+
+    // guarding system.
+
     return false;
   }
 }
