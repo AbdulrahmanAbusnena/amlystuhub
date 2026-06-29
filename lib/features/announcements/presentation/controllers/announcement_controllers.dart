@@ -1,9 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import '../../domain/models/announcement_model.dart';
 import 'announcement_state.dart';
-import 'package:amlystuhub/features/auth/domain/models/user_model.dart';
+import 'package:amlystuhub/features/auth/domain/models /user_model.dart';
 import '../../data/announcement_services.dart';
 
 class AnnouncementController extends StateNotifier<AnnouncementState> {
-  late final AnnouncementServices _service;
+  final AnnouncementServices _service;
+
+  AnnouncementController({required AnnouncementServices service})
+    : _service = service,
+      super(AnnouncementState.initial());
+
+  Future<bool> publishAnnouncement({required String title}) async {
+    return false;
+  }
 }
