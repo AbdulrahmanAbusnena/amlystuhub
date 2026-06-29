@@ -7,7 +7,6 @@ class AnnouncementServices {
   // Planning on creating server side filtering
 
   /*  
-
  So after doing research, and reviews done by Gemini and ChatGPT I found a 
  structural error, I found the query fetches every single announcement ever 
  created in the entire school database. For example if the school hits 1,000
@@ -15,7 +14,32 @@ class AnnouncementServices {
  networks just to read 3 updates relevant to them. It will make the reads skyrockets 
  and the rendering process, highly inefficient. 
   */
-  //  // fetching the Stream
+
+  /// To fix this I'm going to shift the filtering process to Firestore-server side indexing
+
+  Future<List<Iterable<AnnouncementsModel>>> getSudentFeedStream({
+    required int gradeLevel,
+    required bool isApStudent,
+  }) {
+    Query query = _firestore.collection('announcements');
+
+    if (!isApStudent) {
+      query = query.where('apOnly', isEqualTo: false);
+    }
+
+    return query.orderBy('createdAt', descending: true).snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs
+          .map((doc) => AnnouncementsModel.fromDocument(doc))
+          .where((announcement) {
+            return announcement.targetGrades.isEmpty ||
+                announcement.targetGrades.contains(gradeLevel);
+          });
+    }).toList();
+  }
+
+  // fetching the Stream
   Stream<List<AnnouncementsModel>> getAnnouncementsStream() {
     return _firestore
         .collection('announcements')
