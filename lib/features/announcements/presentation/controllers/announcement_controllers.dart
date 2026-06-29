@@ -12,7 +12,14 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     : _service = service,
       super(AnnouncementState.initial());
 
-  Future<bool> publishAnnouncement({required String title}) async {
+  Future<bool> publishAnnouncement({
+    required String title,
+    required String content,
+    required String category,
+    required List<int> targetGrades,
+    required bool apOnly,
+    required UserModel author,
+  }) async {
     return false;
   }
 }
