@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../../domain/models/announcement_model.dart';
@@ -6,6 +8,7 @@ import 'package:amlystuhub/features/auth/domain/models /user_model.dart';
 import '../../data/announcement_services.dart';
 
 class AnnouncementController extends StateNotifier<AnnouncementState> {
+  // ignore: unused_field
   final AnnouncementServices _service;
 
   AnnouncementController({required AnnouncementServices service})
@@ -23,7 +26,13 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     state = AnnouncementState.loading();
 
     // guarding system.
-
+    if (title.trim().isEmpty ||
+        content.trim().isEmpty ||
+        category.trim().isEmpty) {
+      state = AnnouncementState.error(
+        'Please fill out the title, content, and category.',
+      );
+    }
     return false;
   }
 }
