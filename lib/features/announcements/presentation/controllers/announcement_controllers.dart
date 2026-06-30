@@ -40,6 +40,7 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
         id: '',
         title: title.trim(),
         content: content.trim(),
+        category: category.trim(),
         authorId: author.uid,
         authorName: author.name,
         authorRole: author.role,
@@ -57,4 +58,24 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     }
     return false;
   }
+
+  Future<void> togglePinStatus(
+    String announcementId,
+    String userId,
+    bool currentlyPinned,
+  ) async {
+    bool shouldPin = !currentlyPinned;
+
+    // creating a safety circle
+
+    try {
+      await _service.togglePin(announcementId, userId, shouldPin);
+    } catch (e) {
+      print('Error toggling pin status');
+    }
+  }
 }
+
+final announcementServices = Provider<announcementServices>((ref) {
+  return AnnouncementServices();
+});
