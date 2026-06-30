@@ -75,7 +75,17 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     }
   }
 }
+// Service Provider 
+final announcementServicesProvider = Provider<AnnouncementServices>((ref) {
+  return AnnouncementServices(); 
 
-final announcementServices = Provider<announcementServices>((ref) {
-  return AnnouncementServices();
 });
+ 
+// The Controller Provider
+final announcementControllerProivder = StateNotifierProvider<AnnouncementController, AsyncValue<void>>((ref {
+ final services = ref.watch(announcementControllerProivder);  
+
+ // Passing the services into the controller's constructoir 
+ 
+ return AnnouncementController(services: services); 
+}));
