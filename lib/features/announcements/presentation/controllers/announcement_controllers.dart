@@ -33,6 +33,7 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
       state = AnnouncementState.error(
         'Please fill out the title, content, and category.',
       );
+      return false;
     }
 
     try {
