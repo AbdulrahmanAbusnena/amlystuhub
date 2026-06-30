@@ -58,6 +58,11 @@ class AnnouncementServices {
   }
 
   // toggling a studens uid inside the  array
+  /*  
+  To whoever is reading this in the future. This is a system where students can 
+  toggle whether they 'd want to PIN certain announcements. This isn't maintained
+  under the users, it's mainly under the announcment doc 
+  */
   Future<void> togglePin(
     String announcementId,
     String userId,
