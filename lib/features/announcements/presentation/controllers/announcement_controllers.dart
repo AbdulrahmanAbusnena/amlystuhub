@@ -15,7 +15,7 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     : _service = service,
       super(AnnouncementState.initial());
 
-// Publishing announcements method 
+  // Publishing announcements method
   Future<bool> publishAnnouncement({
     required String title,
     required String content,
@@ -33,28 +33,27 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
       state = AnnouncementState.error(
         'Please fill out the title, content, and category.',
       );
-    } 
+    }
 
     try {
-     final newAnnouncement = AnnouncementsModel(
-		id: '', 
-		title: title.trim(),  
-		content: content.trim(), 
-		authorId: author.uid,  
-		authorName: author.name, 
-		authorRole: author.role,  
-		targetGrades:targetGrades, 
-		apOnly: apOnly, 
-		createdAt: DateTime.now(), 
-		pinnedByUids: const [] , 
-	 );  
-     await _service.createAnnouncement(newAnnouncement); 
+      final newAnnouncement = AnnouncementsModel(
+        id: '',
+        title: title.trim(),
+        content: content.trim(),
+        authorId: author.uid,
+        authorName: author.name,
+        authorRole: author.role,
+        targetGrades: targetGrades,
+        apOnly: apOnly,
+        createdAt: DateTime.now(),
+        pinnedByUids: const [],
+      );
+      await _service.createAnnouncement(newAnnouncement);
 
-	 state = AnnouncementState.success(); 
-	 return true; 
-     } 
-    catch { 
-
+      state = AnnouncementState.success();
+      return true;
+    } catch (e) {
+      state = AnnouncementState.error(e.toString());
     }
     return false;
   }
