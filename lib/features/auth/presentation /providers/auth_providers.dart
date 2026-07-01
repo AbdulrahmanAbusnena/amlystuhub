@@ -22,3 +22,12 @@ final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
   final service = ref.watch(authServiceProvider);
   return AuthController(service);
 });
+
+final currentuserModelProvider = StreamProvider<UserModel?>((ref) {
+  // listening to the current state of the user session
+  final authState = ref.watch(authStreamProvider);
+  // listening to the backend to get the cureent stte
+  final authService = ref.watch(authServiceProvider);
+  // extractung value out of the AsyncValue
+  final firebaseUser = authState.value; 
+});
