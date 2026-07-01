@@ -114,4 +114,15 @@ class AuthService {
         return e.message ?? 'Authentication operation failed.';
     }
   }
+
+  // Stream a student's full profile data from firestore in real time
+
+  Stream<UserModel?> getUserDocStream(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
+      if (!snapshot.exists || snapshot.data() == null) {
+        return null;
+      }
+      return UserModel.fromDocument(snapshot);
+    });
+  }
 }
