@@ -3,6 +3,8 @@
 
   const {onCall} = require("firebase-functions/v2/https"); 
   const {onDocumentWritten} = require("firebase-functions/v2/firestore"); 
+  const admin = require("firebase-admin"); 
+  const nodemailer = require("nodemailer");
   
  // * See a full list of supported triggers at https://firebase.google.com/docs/functions
 
