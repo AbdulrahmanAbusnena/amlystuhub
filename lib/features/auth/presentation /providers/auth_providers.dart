@@ -29,5 +29,13 @@ final currentuserModelProvider = StreamProvider<UserModel?>((ref) {
   // listening to the backend to get the cureent stte
   final authService = ref.watch(authServiceProvider);
   // extractung value out of the AsyncValue
-  final firebaseUser = authState.value; 
+  final firebaseUser = authState.value;
+
+  // If logged out, stop and return to an emtpy stream
+
+  if (firebaseUser == null) {
+    return Stream.value(null);
+  }
+  // TODO: adding the logic to fetch the user document from Firestore based on the logged-in user's UID
+  // return authService.getUserDocStream(firebaseUser.uid);
 });
