@@ -9,7 +9,14 @@
   admin.initializeApp();
   const db = admin.firestore(); 
    
- // configuring the connection to our official StuCo account 
+ // configuring the connection to our official StuCo account  
+ const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "abdulrahman.abosnina@stu.amly.us", 
+    pass: "4risewire2" 
+  } 
+}); 
 
  // cloud function trigger listening to our announcements tigger in firestore 
 
