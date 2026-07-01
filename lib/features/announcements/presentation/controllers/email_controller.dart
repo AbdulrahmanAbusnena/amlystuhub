@@ -50,7 +50,7 @@ Future<void> broadcastAnnouncementEmails({
       body: json.encode({
         'service_id': 'service_2i18eof',
         'template_id': 'template_gm7qqg6',
-        'user_id': 'YOUR_EMAILJS_PUBLIC_KEY', // 🔑 Paste your Public Key
+        'user_id': 'QiqxFanVyvR-3Om05',
         'template_params': {
           'title': title,
           'content': content,
