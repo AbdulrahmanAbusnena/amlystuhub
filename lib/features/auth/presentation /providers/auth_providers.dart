@@ -1,3 +1,4 @@
+import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -36,6 +37,6 @@ final currentuserModelProvider = StreamProvider<UserModel?>((ref) {
   if (firebaseUser == null) {
     return Stream.value(null);
   }
-  // TODO: adding the logic to fetch the user document from Firestore based on the logged-in user's UID
-  // return authService.getUserDocStream(firebaseUser.uid);
+
+  return authService.getUserDocStream(firebaseUser.uid);
 });
