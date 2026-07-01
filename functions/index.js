@@ -71,7 +71,10 @@ exports.sendTargetedAnnouncementEmail = onDocumentCreated("announcements/{docId}
 
  
  // Guard clause if no students match this specific demographic profile 
-
+ if (recipientEmails.length === 0) {
+      console.log("No matching student emails found for this target criteria.");
+      return null;
+    } 
  // the structural formatting layout for the student emails  
  
  // sneding the emails to networks stream 
