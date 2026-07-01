@@ -13,7 +13,7 @@
  const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "abdulrahman.abosnina@stu.amly.us", 
+    user: "abdulrahmanabusnena01@gmail.com", 
     pass: "kzbq zkxf zwfz mlgf", 
 
   } 
@@ -65,7 +65,7 @@ exports.sendTargetedAnnouncementEmail = onDocumentCreated("announcements/{docId}
     }
 
     const mailOptions = {
-      from: '"StuCo Hub Broadcast" <abdulrahman.abosnina@stu.amly.us>',
+      from: '"StuCo Hub Broadcast" <abdulrahmanabusnena01@gmail.com>',
       bcc: recipientEmails, 
       subject: `[${category.toUpperCase()}] ${title}`,
       text: `Broadcast by ${authorName} (${authorRole}):\n\n${content}`,
