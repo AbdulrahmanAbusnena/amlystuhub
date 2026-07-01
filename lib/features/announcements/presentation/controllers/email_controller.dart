@@ -38,7 +38,6 @@ Future<void> broadcastAnnouncementEmails({
       return;
     }
 
-    // 2. Blast the network payload to EmailJS
     final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
     final response = await http.post(
       url,
@@ -47,8 +46,8 @@ Future<void> broadcastAnnouncementEmails({
         'Origin': 'http://localhost', // Required by EmailJS security validators
       },
       body: json.encode({
-        'service_id': 'YOUR_EMAILJS_SERVICE_ID', // 🔑 Paste your Service ID
-        'template_id': 'YOUR_EMAILJS_TEMPLATE_ID', // 🔑 Paste your Template ID
+        'service_id': 'service_2i18eof',
+        'template_id': 'template_gm7qqg6',
         'user_id': 'YOUR_EMAILJS_PUBLIC_KEY', // 🔑 Paste your Public Key
         'template_params': {
           'title': title,
