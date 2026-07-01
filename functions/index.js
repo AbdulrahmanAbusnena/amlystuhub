@@ -75,8 +75,23 @@ exports.sendTargetedAnnouncementEmail = onDocumentCreated("announcements/{docId}
       console.log("No matching student emails found for this target criteria.");
       return null;
     } 
+
  // the structural formatting layout for the student emails  
- 
+  const mailOptions = {
+      from: '"AMLY Stuco Hub" <your-stuco-email@gmail.com>',
+      bcc: recipientEmails, // Crucial: Always use BCC so students can't see each other's emails
+      subject: `[${category.toUpperCase()}] ${title}`,
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #1a73e8; margin-bottom: 5px;">${title}</h2>
+          <p style="font-size: 12px; color: #666; margin-top: 0;">Category: <b>${category}</b></p>
+          <hr style="border: 0; border-top: 1px solid #eee;" />
+          <p style="font-size: 15px; line-height: 1.6;">${content.replace(/\n/g, '<br>')}</p>
+          <hr style="border: 0; border-top: 1px solid #eee;" />
+          <p style="font-size: 11px; color: #999;">Broadcasted by ${authorName} (${authorRole}) via Stuco Hub Terminal.</p>
+        </div>
+      `
+    }; 
  // sneding the emails to networks stream 
 
 
