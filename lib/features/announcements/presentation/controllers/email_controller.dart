@@ -13,7 +13,6 @@ Future<void> broadcastAnnouncementEmails({
   required List<String> targetGrades,
   required bool apOnly,
 }) async {
-  // 1. Live target query fetch directly from your users collection
   Query usersQuery = FirebaseFirestore.instance.collection('users');
 
   if (targetGrades.isNotEmpty) {
@@ -57,9 +56,7 @@ Future<void> broadcastAnnouncementEmails({
           'category': category.toUpperCase(),
           'authorName': authorName,
           'authorRole': authorRole,
-          'bcc_list': recipientEmails.join(
-            ',',
-          ), // Converted to comma-separated string
+          'bcc_list': recipientEmails.join(','),
         },
       }),
     );
