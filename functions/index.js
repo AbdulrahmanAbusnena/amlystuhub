@@ -36,8 +36,6 @@ exports.sendTargetedAnnouncementEmail = onDocumentCreated("announcements/{docId}
 
 
 
-  const targetGrades = Array.isArray(announcement.targetGrades) ? announcement.targetGrades : [];
-  const apOnly = announcement.apOnly === true;
 
   let usersQuery = db.collection("users");
 
