@@ -24,7 +24,7 @@ final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
   return AuthController(service);
 });
 
-final currentuserModelProvider = StreamProvider<UserModel?>((ref) {
+final currentUserProvider = StreamProvider<UserModel?>((ref) {
   // listening to the current state of the user session
   final authState = ref.watch(authStreamProvider);
   // listening to the backend to get the cureent stte
