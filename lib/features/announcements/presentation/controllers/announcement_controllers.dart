@@ -91,3 +91,9 @@ final announcementControllerProivder =
 
       return AnnouncementController(service: services);
     });
+
+// Stream Provider
+
+final filterAnnouncementProvider = StateProvider<List<AnnouncementsModel>>(
+  (ref) {},
+);
