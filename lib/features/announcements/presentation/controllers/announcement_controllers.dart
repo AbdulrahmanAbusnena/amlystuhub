@@ -84,7 +84,7 @@ final announcementServicesProvider = Provider<AnnouncementServices>((ref) {
 
 // The Controller Provider
 final announcementControllerProivder =
-    StateNotifierProvider<AnnouncementController, AsyncValue<void>>((ref) {
+    StateNotifierProvider<AnnouncementController, AnnouncementState>((ref) {
       final services = ref.watch(announcementServicesProvider);
 
       // Passing the services into the controller's constructoir
