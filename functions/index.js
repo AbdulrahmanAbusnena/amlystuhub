@@ -87,7 +87,8 @@ exports.sendTargetedAnnouncementEmail = onDocumentCreated("announcements/{docId}
     
   } catch (error) { // ✅ Attached directly to the closing brace above!
     console.error("sendTargetedAnnouncementEmail error", error);
-  } 
+  }  
+  return null; 
 });
 
 const {onRequest} = require("firebase-functions/v2/https");
