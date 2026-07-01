@@ -14,7 +14,8 @@
   service: "gmail",
   auth: {
     user: "abdulrahman.abosnina@stu.amly.us", 
-    pass: "4risewire2" 
+    pass: "kzbq zkxf zwfz mlgf", 
+
   } 
 }); 
 
