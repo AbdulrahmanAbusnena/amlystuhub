@@ -6,6 +6,9 @@
   const admin = require("firebase-admin"); 
   const nodemailer = require("nodemailer");
   
+  admin.initializeApp();
+  const db = admin.firestore(); 
+  
  
  
 const {onRequest} = require("firebase-functions/v2/https");
