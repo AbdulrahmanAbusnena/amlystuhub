@@ -54,6 +54,20 @@ class AppHeaderDash extends StatelessWidget {
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ),
+          const SizedBox(width: 8),
+
+          GestureDetector(
+            onTap: () => context.go('/profile'),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 2),
+                color: Colors.white,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: const Icon(Icons.person, color: Colors.black, size: 20),
+            ),
+          ),
         ],
       ),
     );
