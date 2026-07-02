@@ -5,6 +5,7 @@ import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
+import 'package:amlystuhub/features/resources/presentation/screens/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,6 +54,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/landing',
         builder: (context, state) => const LandingScreen(),
+      ),
+      GoRoute(
+        path: '/resources',
+        builder: (context, state) => const ResourcesScreen(),
       ),
     ],
   );
