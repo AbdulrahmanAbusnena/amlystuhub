@@ -2,6 +2,7 @@ import 'package:amlystuhub/core/widgets/retro_window_shell_dash.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
@@ -21,7 +22,12 @@ class _DashboardState extends ConsumerState<Dashboard> {
     final studentName = userState.value?.name;
     return RetroWindowShellDash(
       title: 'Welcome Back, $studentName!',
-      actions: [],
+      actions: [
+        _builtHeaderActionButton(
+          label: 'REsources',
+          onPressed: () => GoRouter.of(context).go('/resources'),
+        ),
+      ],
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Column(
