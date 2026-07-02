@@ -50,7 +50,7 @@ class AppHeaderDash extends StatelessWidget {
           TextButton(
             onPressed: () => context.go('/signup'),
             child: Text(
-              "Sign Up",
+              "Reporting",
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ),
