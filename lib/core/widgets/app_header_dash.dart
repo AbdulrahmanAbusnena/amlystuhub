@@ -3,18 +3,10 @@ import 'package:go_router/go_router.dart';
 
 class AppHeaderDash extends StatelessWidget {
   final String title;
-  final String label;
-  final String label2;
-  final VoidCallback onPressed;
+
   // const AppHeaderDash({Key? key, this.title = 'Welcome Back!'}) : super(key: key);
 
-  const AppHeaderDash({
-    super.key,
-    required this.title,
-    required this.label,
-    required this.onPressed,
-    required this.label2,
-  });
+  const AppHeaderDash({super.key, required this.title});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,7 +29,7 @@ class AppHeaderDash extends StatelessWidget {
           ),
           const Spacer(),
           TextButton(
-            onPressed: onPressed,
+            onPressed: () => context.go('/resources'),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
@@ -46,7 +38,7 @@ class AppHeaderDash extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                label,
+                "REsources",
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -56,9 +48,9 @@ class AppHeaderDash extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           TextButton(
-            onPressed: onPressed,
+            onPressed: () => context.go('/signup'),
             child: Text(
-              label2,
+              "Sign Up",
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ),
