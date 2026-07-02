@@ -1,15 +1,33 @@
+import 'package:amlystuhub/core/widgets/retro_window_shell_dash.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Dashboard extends StatefulWidget {
+class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  ConsumerState<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return RetroWindowShellDash(
+      title: 'Welcome to AmlyStuHUb',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmall = constraints.maxWidth < 700;
+                final imageSize = isSmall ? 140.0 : 210.0;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
