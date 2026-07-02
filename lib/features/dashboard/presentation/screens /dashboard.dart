@@ -23,6 +23,8 @@ class _DashboardState extends ConsumerState<Dashboard> {
               builder: (context, constraints) {
                 final isSmall = constraints.maxWidth < 700;
                 final imageSize = isSmall ? 140.0 : 210.0;
+
+                return Row();
               },
             ),
           ],
