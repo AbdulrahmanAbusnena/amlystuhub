@@ -1,3 +1,4 @@
+import 'package:amlystuhub/core/widgets/app_header_dash.dart';
 import 'package:amlystuhub/core/widgets/retro_window_shell_dash.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
@@ -20,28 +21,18 @@ class _DashboardState extends ConsumerState<Dashboard> {
     // extracting the students' name
 
     final studentName = userState.value?.name;
-    return RetroWindowShellDash(
-      title: 'Welcome Back, $studentName!',
-      actions: [
-        _builtHeaderActionButton(
-          label: 'REsources',
-          onPressed: () => GoRouter.of(context).go('/resources'),
-        ),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isSmall = constraints.maxWidth < 700;
-                final imageSize = isSmall ? 140.0 : 210.0;
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
 
-                return Row();
-              },
-            ),
-          ],
+      body: SafeArea(
+        child: SelectionArea(
+          child: Column(
+            children: [
+              AppHeaderDash(
+                title: 'Welcome to Dashboard, ${studentName ?? 'Student'}!',
+              ),
+            ],
+          ),
         ),
       ),
     );
