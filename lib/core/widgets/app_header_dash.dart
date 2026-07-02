@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 class AppHeaderDash extends StatelessWidget {
   final String title;
   final String label;
+  final String label2;
   final VoidCallback onPressed;
   // const AppHeaderDash({Key? key, this.title = 'Welcome Back!'}) : super(key: key);
 
@@ -12,6 +13,7 @@ class AppHeaderDash extends StatelessWidget {
     required this.title,
     required this.label,
     required this.onPressed,
+    required this.label2,
   });
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,7 @@ class AppHeaderDash extends StatelessWidget {
           TextButton(
             onPressed: onPressed,
             child: Text(
-              label,
+              label2,
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ),
