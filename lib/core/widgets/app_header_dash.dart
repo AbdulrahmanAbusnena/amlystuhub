@@ -35,7 +35,7 @@ class AppHeaderDash extends StatelessWidget {
           ),
           const Spacer(),
           TextButton(
-            onPressed: () => GoRouter.of(context).go('/resources'),
+            onPressed: onPressed,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
@@ -43,8 +43,8 @@ class AppHeaderDash extends StatelessWidget {
                 border: Border.all(color: Colors.black, width: 2),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text(
-                'REsources',
+              child: Text(
+                label,
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -54,9 +54,9 @@ class AppHeaderDash extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           TextButton(
-            onPressed: () => GoRouter.of(context).go('/signup'),
-            child: const Text(
-              'Sign Up',
+            onPressed: onPressed,
+            child: Text(
+              label,
               style: TextStyle(fontSize: 16, color: Colors.black),
             ),
           ),
