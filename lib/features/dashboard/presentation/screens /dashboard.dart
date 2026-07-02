@@ -1,9 +1,7 @@
 import 'package:amlystuhub/core/widgets/app_header_dash.dart';
-import 'package:amlystuhub/core/widgets/retro_window_shell_dash.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
