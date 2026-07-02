@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 class AppHeader extends StatelessWidget {
   final String title;
+
   const AppHeader({Key? key, this.title = 'AMLYSTUHUB'}) : super(key: key);
 
   @override
