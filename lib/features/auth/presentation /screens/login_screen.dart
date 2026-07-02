@@ -83,7 +83,7 @@ class _LoginState extends ConsumerState<Login> {
                     child: Image.asset(
                       'assets/cat2.jpg',
                       fit: BoxFit.cover,
-                      errorBuilder: (ctx, _, __) =>
+                      errorBuilder: (ctx, _, _) =>
                           const Icon(Icons.computer, size: 40),
                     ),
                   ),

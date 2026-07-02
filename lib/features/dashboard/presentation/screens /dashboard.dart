@@ -1,4 +1,5 @@
 import 'package:amlystuhub/core/widgets/retro_window_shell_dash.dart';
+import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,8 +13,14 @@ class Dashboard extends ConsumerStatefulWidget {
 class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
+    // listen to the auth/user provider
+    final userState = ref.watch(currentUserProvider);
+
+    // extracting the students' name
+
+    final studentName = userState.value?.name;
     return RetroWindowShellDash(
-      title: 'Welcome to AmlyStuHUb',
+      title: 'Welcome Back, $studentName!',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Column(
