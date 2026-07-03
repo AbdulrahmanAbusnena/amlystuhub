@@ -265,4 +265,20 @@ class _DashboardState extends ConsumerState<Dashboard> {
       ),
     );
   }
+
+  Widget _buildFeedbackContainer(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      //   alignment: Center,
+      child: Text(
+        message,
+        style: const TextStyle(
+          fontFamily: 'Courier',
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
 }
