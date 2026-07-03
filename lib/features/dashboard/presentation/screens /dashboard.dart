@@ -29,6 +29,47 @@ class _DashboardState extends ConsumerState<Dashboard> {
               AppHeaderDash(
                 title: 'Welcome to Dashboard, ${studentName ?? 'Student'}!',
               ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 32.0,
+                  ),
+                  child: Center(
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Section: System Update Status Bar Matrix
+                          _buildSystemStatusBanner(context),
+                          const SizedBox(height: 40),
+
+                          // Section: Announcements Feed Label
+                          Text(
+                            'CAMPUS BROADCASTS',
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.color
+                                      ?.withOpacity(0.5),
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Section: Real-time Firestore Stream Feed
+                          _buildLiveAnnouncementsFeed(context),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
