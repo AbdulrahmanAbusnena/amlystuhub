@@ -118,4 +118,47 @@ class _DashboardState extends ConsumerState<Dashboard> {
       ),
     );
   }
+
+  Widget _buildLiveAnnouncementsFeed(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('announcements')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return _buildFeedbackContainer('Error loading console feed payload.');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: CircularProgressIndicator(
+                color: Colors.black,
+                strokeWidth: 2,
+              ),
+            ),
+          );
+        }
+
+        final docs = snapshot.data?.docs ?? [];
+        if (docs.isEmpty) {
+          return _buildFeedbackContainer(
+            'No current broadcasts found on server.',
+          );
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics:
+              const NeverScrollableScrollPhysics(), // Handled perfectly by parent scroller
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            return _buildRetroAnnouncementCard(context, data);
+          },
+        );
+      },
+    );
+  }
 }
