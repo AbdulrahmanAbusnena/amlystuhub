@@ -76,4 +76,46 @@ class _DashboardState extends ConsumerState<Dashboard> {
       ),
     );
   }
+
+  Widget _buildSystemStatusBanner(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).cardColor, // Pulls your theme's custom header tint
+        border: Border.all(color: Colors.black, width: 2),
+        borderRadius: BorderRadius.circular(
+          0,
+        ), // Maintains your sharp terminal design aesthetic
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Text('🟡 🟢 🔴', style: TextStyle(fontSize: 14)),
+              SizedBox(width: 8),
+              Text(
+                'SYSTEM_STATUS: ONLINE',
+                style: TextStyle(
+                  fontFamily: 'Courier',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Welcome to your central communication deck. All academic notices, student council mandates, and emergency reports are routed into this console canvas instance.',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
 }
