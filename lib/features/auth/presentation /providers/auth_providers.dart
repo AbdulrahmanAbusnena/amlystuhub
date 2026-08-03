@@ -1,4 +1,5 @@
 import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -39,4 +40,34 @@ final currentUserProvider = StreamProvider<UserModel?>((ref) {
   }
 
   return authService.getUserDocStream(firebaseUser.uid);
+});
+
+final authStateChangesProvider = StreamProvider<User?>((ref) {
+  return FirebaseAuth.instance.authStateChanges();
+});
+
+// 2. Fetches the active UserModel directly from Firestore whenever Auth state changes
+final currentUserModelProvider = StreamProvider<UserModel?>((ref) {
+  final authState = ref.watch(authStateChangesProvider);
+
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value(null);
+      }
+      // Listen to the Firestore document for real-time user updates
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots()
+          .map((snapshot) {
+            if (!snapshot.exists || snapshot.data() == null) {
+              return null;
+            }
+            return UserModel.fromDocument(snapshot);
+          });
+    },
+    loading: () => const Stream.empty(),
+    error: (_, __) => Stream.value(null),
+  );
 });
