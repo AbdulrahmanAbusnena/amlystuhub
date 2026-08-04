@@ -1,6 +1,6 @@
 import 'package:amlystuhub/features/auth/domain/models /user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../features/auth/domain/models /user_role.dart';
+import '../../../auth/domain/models /user_role.dart';
 
 class AnnouncementModel {
   final String id;

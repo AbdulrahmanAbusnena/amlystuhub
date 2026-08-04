@@ -1,6 +1,6 @@
-import 'package:amlystuhub/announcements/data/announcement_services.dart';
-import 'package:amlystuhub/announcements/domain/models/announcement_models.dart';
-import 'package:amlystuhub/announcements/presentation/state/announcement_state.dart';
+import 'package:amlystuhub/features/announcements/data/announcement_services.dart';
+import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
+import 'package:amlystuhub/features/announcements/presentation/state/announcement_state.dart';
 import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
 import 'package:amlystuhub/features/auth/domain/models%20/user_role.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';

@@ -1,51 +1,58 @@
-import 'package:amlystuhub/announcements/domain/models/announcement_models.dart';
+import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
-class AnnouncementServices {
+class AnnouncementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseFunctions _functions = FirebaseFunctions.instance;
 
-  // Stream new announcements orderd by the newwest first
+  /// OPTIMIZED READ: Only fetches up to 20 announcements relevant to the student
+  Stream<List<AnnouncementModel>> getStudentAnnouncementsStream({
+    required int userGrade,
+    required bool isApStudent,
+    required bool isSchoolAdmin,
+  }) {
+    // School Admins see everything
+    if (isSchoolAdmin) {
+      return _firestore
+          .collection('announcements')
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => AnnouncementModel.fromDocument(doc))
+                .toList(),
+          );
+    }
 
-  Stream<List<AnnouncementModel>> getAnnouncementsStream() {
+    // Students only fetch recent posts targeted to their grade or general broadcasts
     return _firestore
         .collection('announcements')
+        .where('targetGrades', arrayContainsAny: [[], userGrade])
         .orderBy('createdAt', descending: true)
+        .limit(20) // Saves database reads & bandwidth
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
               .map((doc) => AnnouncementModel.fromDocument(doc))
+              .where((announcement) {
+                if (announcement.apOnly && !isApStudent) return false;
+                return true;
+              })
               .toList(),
         );
   }
 
-  // Publishing new announcement
-
-  Future<void> publishAnnouncement({
-    required String title,
-    required String content,
-    required String category,
-    required List<int> targetGrades,
-    required bool apOnly,
-  }) async {
+  /// WRITE: Direct write from Flutter (Free Spark Plan compatible)
+  Future<void> publishAnnouncement(AnnouncementModel announcement) async {
     try {
-      final callable = _functions.httpsCallable('createAnnouncement');
-      await callable.call({
-        'title': title,
-        'content': content,
-        'category': category,
-        'targetGrades': targetGrades,
-        'apOnly': apOnly,
-      });
-    } on FirebaseFunctionsException catch (e) {
-      throw e.message ??
-          'Failed to publish announcement. (Report this back to Abdulrahman!!)';
+      await _firestore.collection('announcements').add(announcement.toMap());
+    } on FirebaseException catch (e) {
+      throw e.message ?? 'Failed to publish announcement.';
     } catch (e) {
-      throw 'A network connection error occurred.';
+      throw 'An unexpected connection error occurred.';
     }
   }
 
+  /// PIN/UNPIN: Direct array update
   Future<void> togglePin(
     String announcementId,
     String userId,

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_feed.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,12 +12,15 @@ import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.
 import 'package:amlystuhub/features/resources/presentation/screens/resources.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  // Use ref.listen instead of ref.watch so the router instance is NEVER destroyed on state changes
   final router = GoRouter(
-    initialLocation: '/landing',
+    initialLocation: '/announcements',
 
     redirect: (context, state) {
-      // Safely read the auth state value from your provider without setting up a destructive watch loop
+      // 🛠️ DEV TEMP OVERRIDE: Allow testing /announcements without triggering auth redirects
+      if (state.matchedLocation == '/announcements') {
+        return null;
+      }
+
       final user = ref.read(authStreamProvider).value;
       final userProfile = ref.read(currentUserProvider).value;
 
@@ -31,10 +36,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 2. Guard Condition: User IS logged in
       if (isLoggingInOrLanding) {
-        return '/dashboard';
-      }
-
-      if (userProfile?.role != 'stuco_leads') {
         return '/dashboard';
       }
 
@@ -55,10 +56,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/resources',
         builder: (context, state) => const ResourcesScreen(),
       ),
+      // 🛠️ Wrapped in a Scaffold so layout & themes render correctly while testing
+      GoRoute(
+        path: '/announcements',
+        builder: (context, state) => Scaffold(
+          appBar: AppBar(title: const Text('Announcement Feed Test')),
+          body: const AnnouncementFeed(),
+        ),
+      ),
     ],
   );
 
-  // Keep the router responsive to changes by adding a listener without breaking the object reference
   ref.listen(authStreamProvider, (previous, next) {
     router.refresh();
   });
