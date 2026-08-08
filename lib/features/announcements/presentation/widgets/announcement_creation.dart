@@ -69,138 +69,131 @@ class _CreateAnnouncementDialogState
   @override
   Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserModelProvider);
-    final user = userAsync.value;
 
-    if (user == null) {
-      return const Dialog(
+    return userAsync.when(
+      loading: () => const Dialog(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // Determine allowed categories using our type-safe UserRole enum getter
-    final allowedCategories = user.role.allowedAnnouncementCategories;
-
-    // Ensure selected category stays valid relative to role permissions
-    if (!allowedCategories.contains(_selectedCategory) &&
-        allowedCategories.isNotEmpty) {
-      _selectedCategory = allowedCategories.first;
-    }
-
-    final state = ref.watch(announcementControllerProvider);
-    final isLoading = state.status == AnnouncementStatus.loading;
-
-    return AlertDialog(
-      title: const Text('New Announcement'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Error Display
-              if (state.status == AnnouncementStatus.error &&
-                  state.errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Text(
-                    state.errorMessage!,
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
-                  ),
-                ),
-
-              // Title Field
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  hintText: 'e.g., StuCo Bake Sale Postponed',
-                ),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Title is required'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Content Field
-              TextFormField(
-                controller: _contentController,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Body Content',
-                  alignLabelWithHint: true,
-                ),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Content is required'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Category Picker
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(labelText: 'Category'),
-                items: allowedCategories.map((cat) {
-                  return DropdownMenuItem(value: cat, child: Text(cat));
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedCategory = val);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Target Grades Chips
-              const Text(
-                'Target Grades (Select none for all grades)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 8,
-                children: [9, 10, 11, 12].map((grade) {
-                  final isSelected = _selectedGrades.contains(grade);
-                  return FilterChip(
-                    label: Text('Grade $grade'),
-                    selected: isSelected,
-                    onSelected: (_) => _toggleGrade(grade),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 12),
-
-              // AP Only Switch
-              SwitchListTile(
-                title: const Text(
-                  'AP Students Only',
-                  style: TextStyle(fontSize: 14),
-                ),
-                contentPadding: EdgeInsets.zero,
-                value: _apOnly,
-                onChanged: (val) => setState(() => _apOnly = val),
-              ),
-            ],
-          ),
+          padding: EdgeInsets.all(32.0),
+          child: Center(child: CircularProgressIndicator()),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: isLoading ? _submitForm : () => _submitForm(),
-          child: isLoading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Publish'),
-        ),
-      ],
+      error: (err, stack) => AlertDialog(
+        title: const Text('Error'),
+        content: Text('Failed to load user profile: $err'),
+      ),
+      data: (user) {
+        if (user == null) {
+          return const AlertDialog(
+            title: Text('Not Authenticated'),
+            content: Text('Please log in to create an announcement.'),
+          );
+        }
+
+        final allowedCategories = user.role.allowedAnnouncementCategories;
+
+        if (!allowedCategories.contains(_selectedCategory) &&
+            allowedCategories.isNotEmpty) {
+          _selectedCategory = allowedCategories.first;
+        }
+
+        final state = ref.watch(announcementControllerProvider);
+
+        return AlertDialog(
+          title: const Text('New Announcement'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (state.status == AnnouncementStatus.error &&
+                      state.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Text(
+                        state.errorMessage!,
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
+
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      hintText: 'e.g., StuCo Bake Sale Postponed',
+                    ),
+                    validator: (val) => val == null || val.trim().isEmpty
+                        ? 'Title is required'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    controller: _contentController,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Body Content',
+                      alignLabelWithHint: true,
+                    ),
+                    validator: (val) => val == null || val.trim().isEmpty
+                        ? 'Content is required'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    items: allowedCategories.map((cat) {
+                      return DropdownMenuItem(value: cat, child: Text(cat));
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedCategory = val);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'Target Grades (Select none for all grades)',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    children: [9, 10, 11, 12].map((grade) {
+                      final isSelected = _selectedGrades.contains(grade);
+                      return FilterChip(
+                        label: Text('Grade $grade'),
+                        selected: isSelected,
+                        onSelected: (_) => _toggleGrade(grade),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: state.status == AnnouncementStatus.loading
+                  ? null
+                  : _submitForm,
+              child: state.status == AnnouncementStatus.loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Post'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

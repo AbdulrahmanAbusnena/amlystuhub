@@ -15,28 +15,20 @@ import 'package:amlystuhub/features/resources/presentation/screens/resources.dar
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: '/landing',
-
     redirect: (context, state) {
-      // Safely read the auth state value from your provider without setting up a destructive watch loop
-      final user = ref.read(authStreamProvider).value;
-      final userProfile = ref.read(currentUserModelProvider).value;
+      final authAsync = ref.read(authStreamProvider);
+      final user = authAsync.value;
 
       final isLoggingInOrLanding =
           state.matchedLocation == '/login' ||
           state.matchedLocation == '/signup' ||
           state.matchedLocation == '/landing';
 
-      // 1. Guard Condition: User is NOT logged in
       if (user == null) {
         return isLoggingInOrLanding ? null : '/landing';
       }
 
-      // 2. Guard Condition: User IS logged in
       if (isLoggingInOrLanding) {
-        return '/announcements';
-      }
-
-      if (userProfile?.role != 'stuco_leads') {
         return '/announcements';
       }
 
@@ -57,20 +49,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/resources',
         builder: (context, state) => const ResourcesScreen(),
       ),
-      // 🛠️ Wrapped in a Scaffold so layout & themes render correctly while testing
       GoRoute(
         path: '/announcements',
         builder: (context, state) => Scaffold(
-          appBar: AppBar(title: const Text('Announcement  Test')),
+          appBar: AppBar(title: const Text('Announcement Test')),
           body: const CreateAnnouncementDialog(),
         ),
       ),
     ],
   );
 
-  ref.listen(authStreamProvider, (previous, next) {
-    router.refresh();
-  });
+  ref.listen(authStreamProvider, (_, __) => router.refresh());
+  ref.listen(currentUserModelProvider, (_, __) => router.refresh());
 
   return router;
 });

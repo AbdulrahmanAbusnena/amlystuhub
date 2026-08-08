@@ -15,7 +15,7 @@ class Dashboard extends ConsumerStatefulWidget {
 class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(currentUserProvider);
+    final userState = ref.watch(currentUserModelProvider);
     final studentName = userState.value?.name;
     final userRole = userState.value?.role ?? 'student';
 

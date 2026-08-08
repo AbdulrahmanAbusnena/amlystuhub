@@ -26,26 +26,27 @@ final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
 });
 
 final currentUserModelProvider = StreamProvider<UserModel?>((ref) {
-  // Read the current auth user value cleanly
-  final authUserAsync = ref.watch(authStreamProvider);
-  final user = authUserAsync.value;
+  // Use asyncExpand to listen to Auth changes WITHOUT re-initializing the provider instance
+  return FirebaseAuth.instance.authStateChanges().asyncExpand((user) {
+    if (user == null) {
+      return Stream.value(null);
+    }
 
-  if (user == null) {
-    return Stream.value(null);
-  }
-
-  return FirebaseFirestore.instance
-      .collection('users')
-      .doc(user.uid)
-      .snapshots()
-      .map((snapshot) {
-        if (!snapshot.exists || snapshot.data() == null) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .map((snapshot) {
           print(
-            '⚠️ [Firestore] User document users/${user.uid} DOES NOT EXIST!',
+            '5️⃣ [Diagnostic] Firestore snapshot received. Exists: ${snapshot.exists}',
           );
-          return null;
-        }
-        print('✅ [Firestore] User model successfully parsed.');
-        return UserModel.fromDocument(snapshot);
-      });
+
+          if (!snapshot.exists || snapshot.data() == null) {
+            print('⚠️ Document users/${user.uid} does NOT exist!');
+            return null;
+          }
+
+          return UserModel.fromDocument(snapshot);
+        });
+  });
 });
