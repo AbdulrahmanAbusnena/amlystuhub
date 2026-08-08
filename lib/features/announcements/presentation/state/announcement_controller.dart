@@ -80,15 +80,30 @@ final announcementControllerProvider =
 final filteredAnnouncementsProvider = StreamProvider<List<AnnouncementModel>>((
   ref,
 ) {
-  final service = ref.watch(announcementServiceProvider);
   final userAsync = ref.watch(currentUserModelProvider);
-  final user = userAsync.value;
+  final service = ref.watch(announcementServiceProvider);
 
-  if (user == null) return Stream.value([]);
+  return userAsync.when(
+    data: (user) {
+      if (user == null) return Stream.value([]);
 
-  return service.getStudentAnnouncementsStream(
-    userGrade: user.gradeLevel,
-    isApStudent: user.isApStudent,
-    isSchoolAdmin: user.role == UserRole.stuCoAdmin,
+      return service.getAnnouncements().map((announcements) {
+        final isPrivilegedUser = user.role == UserRole.stuCoAdmin;
+
+        return announcements.where((announcement) {
+          if (isPrivilegedUser) return true;
+
+          final matchesGrade =
+              announcement.targetGrades.isEmpty ||
+              announcement.targetGrades.contains(user.gradeLevel);
+
+          final matchesAp = !announcement.apOnly || user.isApStudent;
+
+          return matchesGrade && matchesAp;
+        }).toList();
+      });
+    },
+    loading: () => const Stream.empty(),
+    error: (_, __) => Stream.value([]),
   );
 });
