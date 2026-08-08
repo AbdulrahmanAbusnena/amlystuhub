@@ -4,13 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AnnouncementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// OPTIMIZED READ: Only fetches up to 20 announcements relevant to the student
   Stream<List<AnnouncementModel>> getStudentAnnouncementsStream({
     required int userGrade,
     required bool isApStudent,
     required bool isSchoolAdmin,
   }) {
-    // School Admins see everything
     if (isSchoolAdmin) {
       return _firestore
           .collection('announcements')
@@ -23,17 +21,18 @@ class AnnouncementService {
           );
     }
 
-    // Students only fetch recent posts targeted to their grade or general broadcasts
+    // Pass userGrade inside arrayContainsAny directly
     return _firestore
         .collection('announcements')
-        .where('targetGrades', arrayContainsAny: [[], userGrade])
+        .where('targetGrades', arrayContainsAny: [userGrade])
         .orderBy('createdAt', descending: true)
-        .limit(20) // Saves database reads & bandwidth
+        .limit(20)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
               .map((doc) => AnnouncementModel.fromDocument(doc))
               .where((announcement) {
+                // Filter out posts targeted to specific AP permissions client side
                 if (announcement.apOnly && !isApStudent) return false;
                 return true;
               })
