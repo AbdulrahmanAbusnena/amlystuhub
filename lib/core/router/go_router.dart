@@ -1,3 +1,4 @@
+import 'package:amlystuhub/features/announcements/presentation/widgets/announcemen_screen.dart';
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:flutter/material.dart';
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_feed.dart';
@@ -53,7 +54,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/announcements',
         builder: (context, state) => Scaffold(
           appBar: AppBar(title: const Text('Announcement Test')),
-          body: const CreateAnnouncementDialog(),
+          body: const AnnouncementsScreen(),
         ),
       ),
     ],
