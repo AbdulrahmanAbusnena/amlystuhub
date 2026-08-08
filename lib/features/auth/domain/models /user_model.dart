@@ -97,14 +97,10 @@ class UserModel {
     );
   }
 
-  /// We have top Check who the users are
-  bool get isStuCoAdmin => role == 'stuco_leads';
-
-  bool get isStudent => role == 'student';
-
-  bool get isHeadofAcademics => role == 'head_of_academics';
-
-  bool get isSchoolAdmin => role == 'school_admin';
+  bool get isStuCoAdmin =>
+      role == UserRole.stuCoAdmin || role == UserRole.stuCoLead;
+  bool get isStudent => role == UserRole.student;
+  bool get isHeadofAcademics => role == UserRole.headOfAcademics;
 
   @override
   bool operator ==(Object other) {
