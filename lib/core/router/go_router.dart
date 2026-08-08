@@ -1,3 +1,4 @@
+import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:flutter/material.dart';
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_feed.dart';
 import 'package:go_router/go_router.dart';
@@ -13,16 +14,12 @@ import 'package:amlystuhub/features/resources/presentation/screens/resources.dar
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: '/announcements',
+    initialLocation: '/landing',
 
     redirect: (context, state) {
-      // 🛠️ DEV TEMP OVERRIDE: Allow testing /announcements without triggering auth redirects
-      if (state.matchedLocation == '/announcements') {
-        return null;
-      }
-
+      // Safely read the auth state value from your provider without setting up a destructive watch loop
       final user = ref.read(authStreamProvider).value;
-      final userProfile = ref.read(currentUserProvider).value;
+      final userProfile = ref.read(currentUserModelProvider).value;
 
       final isLoggingInOrLanding =
           state.matchedLocation == '/login' ||
@@ -36,7 +33,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 2. Guard Condition: User IS logged in
       if (isLoggingInOrLanding) {
-        return '/dashboard';
+        return '/announcements';
+      }
+
+      if (userProfile?.role != 'stuco_leads') {
+        return '/announcements';
       }
 
       return null;
@@ -60,8 +61,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/announcements',
         builder: (context, state) => Scaffold(
-          appBar: AppBar(title: const Text('Announcement Feed Test')),
-          body: const AnnouncementFeed(),
+          appBar: AppBar(title: const Text('Announcement  Test')),
+          body: const CreateAnnouncementDialog(),
         ),
       ),
     ],

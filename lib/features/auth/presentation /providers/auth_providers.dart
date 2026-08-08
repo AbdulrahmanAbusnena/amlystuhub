@@ -25,49 +25,27 @@ final authStateProvider = StateNotifierProvider<AuthController, AuthState>((
   return AuthController(service);
 });
 
-final currentUserProvider = StreamProvider<UserModel?>((ref) {
-  // listening to the current state of the user session
-  final authState = ref.watch(authStreamProvider);
-  // listening to the backend to get the cureent stte
-  final authService = ref.watch(authServiceProvider);
-  // extractung value out of the AsyncValue
-  final firebaseUser = authState.value;
+final currentUserModelProvider = StreamProvider<UserModel?>((ref) {
+  // Read the current auth user value cleanly
+  final authUserAsync = ref.watch(authStreamProvider);
+  final user = authUserAsync.value;
 
-  // If logged out, stop and return to an emtpy stream
-
-  if (firebaseUser == null) {
+  if (user == null) {
     return Stream.value(null);
   }
 
-  return authService.getUserDocStream(firebaseUser.uid);
-});
-
-final authStateChangesProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
-});
-
-// 2. Fetches the active UserModel directly from Firestore whenever Auth state changes
-final currentUserModelProvider = StreamProvider<UserModel?>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
-
-  return authState.when(
-    data: (user) {
-      if (user == null) {
-        return Stream.value(null);
-      }
-      // Listen to the Firestore document for real-time user updates
-      return FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .snapshots()
-          .map((snapshot) {
-            if (!snapshot.exists || snapshot.data() == null) {
-              return null;
-            }
-            return UserModel.fromDocument(snapshot);
-          });
-    },
-    loading: () => const Stream.empty(),
-    error: (_, __) => Stream.value(null),
-  );
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .snapshots()
+      .map((snapshot) {
+        if (!snapshot.exists || snapshot.data() == null) {
+          print(
+            '⚠️ [Firestore] User document users/${user.uid} DOES NOT EXIST!',
+          );
+          return null;
+        }
+        print('✅ [Firestore] User model successfully parsed.');
+        return UserModel.fromDocument(snapshot);
+      });
 });

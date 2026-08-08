@@ -6,7 +6,7 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
-  final UserRole role; 
+  final UserRole role;
   final int gradeLevel;
   final bool isApStudent;
   final DateTime createdAt;
@@ -65,8 +65,8 @@ class UserModel {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'email': email, 
-      'role': role.toSystemString(), 
+      'email': email,
+      'role': role.toSystemString(),
       'gradeLevel': gradeLevel,
       'isApStudent': isApStudent,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -98,7 +98,7 @@ class UserModel {
   }
 
   /// We have top Check who the users are
-  bool get isStuCoAdmin => role == 'stuco_admin';
+  bool get isStuCoAdmin => role == 'stuco_leads';
 
   bool get isStudent => role == 'student';
 

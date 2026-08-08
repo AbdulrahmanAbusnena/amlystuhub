@@ -20,7 +20,7 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     required String category,
     required List<int> targetGrades,
     required bool apOnly,
-    required UserModel authorId,
+    required String authorId,
     required String authorName,
     required UserRole authorRole,
   }) async {

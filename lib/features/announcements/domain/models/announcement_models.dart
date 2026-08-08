@@ -6,7 +6,7 @@ class AnnouncementModel {
   final String id;
   final String title;
   final String content;
-  final UserModel authorId;
+  final String authorId;
   final UserRole authorRole;
   final String authorName;
   final String category;

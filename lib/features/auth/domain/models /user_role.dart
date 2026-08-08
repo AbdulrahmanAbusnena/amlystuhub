@@ -8,7 +8,7 @@ enum UserRole {
     switch (roleStr) {
       case 'stuco_leads':
         return UserRole.stuCoLead;
-      case 'stuCoAdmin':
+      case 'StuCoAdmin':
         return UserRole.stuCoAdmin;
       case 'head_of_academics':
         return UserRole.headOfAcademics;
