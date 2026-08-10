@@ -1,19 +1,68 @@
+import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
+import 'package:amlystuhub/features/announcements/presentation/state/announcement_controller.dart';
+import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amlystuhub/features/announcements/presentation/state/announcement_controller.dart';
 
 class AnnouncementCard extends ConsumerWidget {
   final AnnouncementModel announcement;
 
   const AnnouncementCard({super.key, required this.announcement});
 
+  void _confirmDelete(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Announcement'),
+        content: const Text(
+          'Are you sure you want to delete this announcement? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final success = await ref
+                  .read(announcementControllerProvider.notifier)
+                  .deleteAnnouncement(announcement.id);
+
+              if (!success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Failed to delete announcement.'),
+                  ),
+                );
+              }
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          CreateAnnouncementDialog(announcementToEdit: announcement),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUserAsync = ref.watch(currentUserModelProvider);
-    final userId = currentUserAsync.value?.uid ?? '';
+    final user = currentUserAsync.value;
+    final userId = user?.uid ?? '';
     final isPinned = announcement.pinnedByUids.contains(userId);
+    final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -24,30 +73,78 @@ class AnnouncementCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row: Category Badge, Pin Button
+            // Header Row: Category Badge, Pin Button, Overflow Menu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildCategoryBadge(context, announcement.category),
-                IconButton(
-                  icon: Icon(
-                    isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                    color: isPinned
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey,
-                  ),
-                  tooltip: isPinned ? 'Unpin Announcement' : 'Pin Announcement',
-                  onPressed: userId.isEmpty
-                      ? null
-                      : () {
-                          ref
-                              .read(announcementControllerProvider.notifier)
-                              .togglePin(
-                                announcementId: announcement.id,
-                                userId: userId,
-                                currentlyPinned: isPinned,
-                              );
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        color: isPinned
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey,
+                      ),
+                      tooltip: isPinned
+                          ? 'Unpin Announcement'
+                          : 'Pin Announcement',
+                      onPressed: userId.isEmpty
+                          ? null
+                          : () {
+                              ref
+                                  .read(announcementControllerProvider.notifier)
+                                  .togglePin(
+                                    announcementId: announcement.id,
+                                    userId: userId,
+                                    currentlyPinned: isPinned,
+                                  );
+                            },
+                    ),
+                    if (isPrivilegedUser)
+                      PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _showEditDialog(context);
+                          } else if (value == 'delete') {
+                            _confirmDelete(context, ref);
+                          }
                         },
+                        itemBuilder: (BuildContext context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, size: 20),
+                                SizedBox(width: 8),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                 ),
               ],
             ),

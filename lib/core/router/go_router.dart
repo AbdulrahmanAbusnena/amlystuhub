@@ -52,10 +52,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/announcements',
-        builder: (context, state) => Scaffold(
-          appBar: AppBar(title: const Text('Announcement Test')),
-          body: const AnnouncementsScreen(),
-        ),
+        builder: (context, state) => const AnnouncementsScreen(),
       ),
     ],
   );

@@ -1,11 +1,16 @@
-import 'package:amlystuhub/features/announcements/presentation/state/announcement_state.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../state/announcement_controller.dart';
+import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
+import 'package:amlystuhub/features/announcements/presentation/state/announcement_controller.dart';
 
 class CreateAnnouncementDialog extends ConsumerStatefulWidget {
-  const CreateAnnouncementDialog({super.key});
+  final AnnouncementModel? announcementToEdit;
+
+  const CreateAnnouncementDialog({
+    super.key,
+    this.announcementToEdit,
+  });
 
   @override
   ConsumerState<CreateAnnouncementDialog> createState() =>
@@ -14,13 +19,35 @@ class CreateAnnouncementDialog extends ConsumerStatefulWidget {
 
 class _CreateAnnouncementDialogState
     extends ConsumerState<CreateAnnouncementDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  late final TextEditingController _titleController;
+  late final TextEditingController _contentController;
+  late String _selectedCategory;
+  late List<int> _selectedGrades;
+  bool _isLoading = false;
 
-  String _selectedCategory = 'General';
-  final List<int> _selectedGrades = [];
-  bool _apOnly = false;
+  final List<int> _availableGrades = [9, 10, 11, 12];
+  final List<String> _categories = [
+    'General',
+    'StuCo',
+    'Exam',
+    'AP',
+    'Emergency',
+  ];
+
+  bool get isEditing => widget.announcementToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final announcement = widget.announcementToEdit;
+
+    _titleController =
+        TextEditingController(text: announcement?.title ?? '');
+    _contentController =
+        TextEditingController(text: announcement?.content ?? '');
+    _selectedCategory = announcement?.category ?? 'General';
+    _selectedGrades = List<int>.from(announcement?.targetGrades ?? []);
+  }
 
   @override
   void dispose() {
@@ -29,171 +56,134 @@ class _CreateAnnouncementDialogState
     super.dispose();
   }
 
-  void _toggleGrade(int grade) {
-    setState(() {
-      if (_selectedGrades.contains(grade)) {
-        _selectedGrades.remove(grade);
-      } else {
-        _selectedGrades.add(grade);
-      }
-    });
-  }
-
-  Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
-
+  Future<void> _submit() async {
     final user = ref.read(currentUserModelProvider).value;
     if (user == null) return;
 
-    final success = await ref
-        .read(announcementControllerProvider.notifier)
-        .createAnnouncement(
-          title: _titleController.text,
-          content: _contentController.text,
-          category: _selectedCategory,
-          targetGrades: _selectedGrades,
-          apOnly: _apOnly,
-          authorId: user.uid,
-          authorName: user.name,
-          authorRole: user.role,
-        );
+    setState(() => _isLoading = true);
 
-    if (mounted && success) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Announcement published successfully!')),
+    final controller = ref.read(announcementControllerProvider.notifier);
+    final isApCategory = _selectedCategory == 'AP';
+    bool success;
+
+    if (isEditing) {
+      success = await controller.editAnnouncement(
+        announcementId: widget.announcementToEdit!.id,
+        title: _titleController.text,
+        content: _contentController.text,
+        category: _selectedCategory,
+        targetGrades: _selectedGrades,
+        apOnly: isApCategory,
       );
+    } else {
+      success = await controller.createAnnouncement(
+        title: _titleController.text,
+        content: _contentController.text,
+        category: _selectedCategory,
+        targetGrades: _selectedGrades,
+        apOnly: isApCategory,
+        authorId: user.uid,
+        authorName: user.name,
+        authorRole: user.role,
+      );
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (success) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userAsync = ref.watch(currentUserModelProvider);
-
-    return userAsync.when(
-      loading: () => const Dialog(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      ),
-      error: (err, stack) => AlertDialog(
-        title: const Text('Error'),
-        content: Text('Failed to load user profile: $err'),
-      ),
-      data: (user) {
-        if (user == null) {
-          return const AlertDialog(
-            title: Text('Not Authenticated'),
-            content: Text('Please log in to create an announcement.'),
-          );
-        }
-
-        final allowedCategories = user.role.allowedAnnouncementCategories;
-
-        if (!allowedCategories.contains(_selectedCategory) &&
-            allowedCategories.isNotEmpty) {
-          _selectedCategory = allowedCategories.first;
-        }
-
-        final state = ref.watch(announcementControllerProvider);
-
-        return AlertDialog(
-          title: const Text('New Announcement'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (state.status == AnnouncementStatus.error &&
-                      state.errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Text(
-                        state.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                    ),
-
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      hintText: 'e.g., StuCo Bake Sale Postponed',
-                    ),
-                    validator: (val) => val == null || val.trim().isEmpty
-                        ? 'Title is required'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-
-                  TextFormField(
-                    controller: _contentController,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Body Content',
-                      alignLabelWithHint: true,
-                    ),
-                    validator: (val) => val == null || val.trim().isEmpty
-                        ? 'Content is required'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(labelText: 'Category'),
-                    items: allowedCategories.map((cat) {
-                      return DropdownMenuItem(value: cat, child: Text(cat));
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => _selectedCategory = val);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    'Target Grades (Select none for all grades)',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 8,
-                    children: [9, 10, 11, 12].map((grade) {
-                      final isSelected = _selectedGrades.contains(grade);
-                      return FilterChip(
-                        label: Text('Grade $grade'),
-                        selected: isSelected,
-                        onSelected: (_) => _toggleGrade(grade),
-                      );
-                    }).toList(),
-                  ),
-                ],
+    return AlertDialog(
+      title: Text(isEditing ? 'Edit Announcement' : 'New Announcement'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _contentController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Content',
+                border: OutlineInputBorder(),
+              ),
             ),
-            ElevatedButton(
-              onPressed: state.status == AnnouncementStatus.loading
-                  ? null
-                  : _submitForm,
-              child: state.status == AnnouncementStatus.loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Post'),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _categories.contains(_selectedCategory)
+                  ? _selectedCategory
+                  : 'General',
+              items: _categories
+                  .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _selectedCategory = val);
+              },
+              decoration: const InputDecoration(
+                labelText: 'Category',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Target Grade Levels (Leave empty for All Grades):',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _availableGrades.map((grade) {
+                final isSelected = _selectedGrades.contains(grade);
+                return FilterChip(
+                  label: Text('Grade $grade'),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _selectedGrades.add(grade);
+                      } else {
+                        _selectedGrades.remove(grade);
+                      }
+                      _selectedGrades.sort();
+                    });
+                  },
+                );
+              }).toList(),
             ),
           ],
-        );
-      },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _isLoading ? null : _submit,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(isEditing ? 'Save Changes' : 'Post'),
+        ),
+      ],
     );
   }
-}
+} 

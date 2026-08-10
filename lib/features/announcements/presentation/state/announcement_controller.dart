@@ -53,6 +53,52 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     }
   }
 
+  Future<bool> editAnnouncement({
+    required String announcementId,
+    required String title,
+    required String content,
+    required String category,
+    required List<int> targetGrades,
+    required bool apOnly,
+  }) async {
+    state = AnnouncementState.loading();
+
+    try {
+      if (title.trim().isEmpty || content.trim().isEmpty) {
+        throw 'Title and Content fields cannot be empty.';
+      }
+
+      final updateMap = {
+        'title': title.trim(),
+        'content': content.trim(),
+        'category': category,
+        'targetGrades': targetGrades,
+        'apOnly': apOnly,
+      };
+
+      await _service.updateAnnouncement(announcementId, updateMap);
+
+      state = AnnouncementState.success();
+      return true;
+    } catch (e) {
+      state = AnnouncementState.error(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteAnnouncement(String announcementId) async {
+    state = AnnouncementState.loading();
+
+    try {
+      await _service.deleteAnnouncement(announcementId);
+      state = AnnouncementState.success();
+      return true;
+    } catch (e) {
+      state = AnnouncementState.error(e.toString());
+      return false;
+    }
+  }
+
   Future<void> togglePin({
     required String announcementId,
     required String userId,
@@ -85,25 +131,32 @@ final filteredAnnouncementsProvider = StreamProvider<List<AnnouncementModel>>((
   final service = ref.watch(announcementServiceProvider);
 
   final user = userAsync.value;
-  if (user == null) {
-    return Stream.value([]);
-  }
+  if (user == null) return Stream.value([]);
 
-  final isPrivilegedUser = user.role == UserRole.stuCoAdmin;
+  final isPrivilegedUser = user.role.canPublishAnnouncements;
 
   return service.getAnnouncementsStream().map((announcements) {
-    return announcements.where((announcement) {
+    // 1. Filter by role/grade/AP scope
+    final visible = announcements.where((a) {
       if (isPrivilegedUser) return true;
-
-      // Match target grades (empty means applicable to all grades)
       final matchesGrade =
-          announcement.targetGrades.isEmpty ||
-          announcement.targetGrades.contains(user.gradeLevel);
-
-      // Match AP status
-      final matchesAp = !announcement.apOnly || user.isApStudent;
-
+          a.targetGrades.isEmpty || a.targetGrades.contains(user.gradeLevel);
+      final matchesAp = !a.apOnly || user.isApStudent;
       return matchesGrade && matchesAp;
     }).toList();
+
+    // 2. Sort pinned items to the top
+    visible.sort((a, b) {
+      final aIsPinned = a.pinnedByUids.contains(user.uid);
+      final bIsPinned = b.pinnedByUids.contains(user.uid);
+
+      if (aIsPinned && !bIsPinned) return -1;
+      if (!aIsPinned && bIsPinned) return 1;
+
+      // Secondary sort: newest first
+      return b.createdAt.compareTo(a.createdAt);
+    });
+
+    return visible;
   });
 });
