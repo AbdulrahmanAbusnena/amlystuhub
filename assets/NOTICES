@@ -5663,7 +5663,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 flutter_lints
 flutter_shaders
-path_provider_linux
 path_provider_windows
 plugin_platform_interface
 xdg_directories
@@ -10936,9 +10935,11 @@ limitations under the License.
 --------------------------------------------------------------------------------
 go_router
 google_fonts
+listen
 path_provider
 path_provider_android
 path_provider_foundation
+path_provider_linux
 path_provider_platform_interface
 webview_flutter
 webview_flutter_platform_interface
@@ -21559,6 +21560,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 jni_flutter
+jni_util
 
 Copyright 2026, the Dart project authors.
 
