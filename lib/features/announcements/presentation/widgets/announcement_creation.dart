@@ -68,7 +68,6 @@ class _CreateAnnouncementDialogState
     super.dispose();
   }
 
-  /// Formats selected text smoothly or surrounds the cursor position cleanly
   void _applySelectionFormat(String prefix, String suffix) {
     final text = _contentController.text;
     final selection = _contentController.selection;
@@ -120,13 +119,38 @@ class _CreateAnnouncementDialogState
     _contentFocusNode.requestFocus();
   }
 
-  Future<void> _pickDeviceFiles({FileType type = FileType.any}) async {
-    final result = await FilePicker.pickFiles(type: type, allowMultiple: true);
+  Future<void> _pickImages() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        allowMultiple: true,
+      );
 
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        _selectedFiles.addAll(result.files);
-      });
+      if (result != null && result.files.isNotEmpty && mounted) {
+        setState(() {
+          _selectedFiles.addAll(result.files);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking images: $e');
+    }
+  }
+
+  Future<void> _pickAnyFiles() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.any,
+        allowMultiple: true,
+      );
+
+      if (result != null && result.files.isNotEmpty && mounted) {
+        setState(() {
+          _selectedFiles.addAll(result.files);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking files: $e');
     }
   }
 
@@ -134,6 +158,7 @@ class _CreateAnnouncementDialogState
     final user = ref.read(currentUserModelProvider).value;
     if (user == null) return;
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     final controller = ref.read(announcementControllerProvider.notifier);
@@ -196,7 +221,6 @@ class _CreateAnnouncementDialogState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title Bar with Copyable Window Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -217,7 +241,6 @@ class _CreateAnnouncementDialogState
                   ),
                   const Divider(height: 20),
 
-                  // Main Scrollable Content
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -233,7 +256,6 @@ class _CreateAnnouncementDialogState
                           ),
                           const SizedBox(height: 16),
 
-                          // Integrated Text Formatting Box
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade400),
@@ -242,7 +264,6 @@ class _CreateAnnouncementDialogState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Action Bar
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -287,22 +308,17 @@ class _CreateAnnouncementDialogState
                                       _buildFormatButton(
                                         icon: Icons.image_outlined,
                                         tooltip: 'Attach Image',
-                                        onPressed: () => _pickDeviceFiles(
-                                          type: FileType.image,
-                                        ),
+                                        onPressed: _pickImages,
                                       ),
                                       _buildFormatButton(
                                         icon: Icons.attach_file_outlined,
                                         tooltip: 'Attach File',
-                                        onPressed: () => _pickDeviceFiles(
-                                          type: FileType.any,
-                                        ),
+                                        onPressed: _pickAnyFiles,
                                       ),
                                     ],
                                   ),
                                 ),
                                 const Divider(height: 1),
-                                // Content Field with selection enabled
                                 Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: TextField(
@@ -328,10 +344,17 @@ class _CreateAnnouncementDialogState
                               spacing: 6,
                               runSpacing: 6,
                               children: _selectedFiles.map((file) {
+                                final ext = file.extension?.toLowerCase() ?? '';
+                                final isImg = [
+                                  'jpg',
+                                  'jpeg',
+                                  'png',
+                                  'webp',
+                                  'gif',
+                                ].contains(ext);
                                 return Chip(
                                   avatar: Icon(
-                                    file.extension == 'jpg' ||
-                                            file.extension == 'png'
+                                    isImg
                                         ? Icons.image
                                         : Icons.insert_drive_file,
                                     size: 16,
@@ -341,9 +364,11 @@ class _CreateAnnouncementDialogState
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                   onDeleted: () {
-                                    setState(() {
-                                      _selectedFiles.remove(file);
-                                    });
+                                    if (mounted) {
+                                      setState(() {
+                                        _selectedFiles.remove(file);
+                                      });
+                                    }
                                   },
                                 );
                               }).toList(),
@@ -365,7 +390,7 @@ class _CreateAnnouncementDialogState
                                 )
                                 .toList(),
                             onChanged: (val) {
-                              if (val != null) {
+                              if (val != null && mounted) {
                                 setState(() => _selectedCategory = val);
                               }
                             },
@@ -393,6 +418,7 @@ class _CreateAnnouncementDialogState
                                 label: Text('Grade $grade'),
                                 selected: isSelected,
                                 onSelected: (selected) {
+                                  if (!mounted) return;
                                   setState(() {
                                     if (selected) {
                                       _selectedGrades.add(grade);
@@ -412,7 +438,6 @@ class _CreateAnnouncementDialogState
 
                   const SizedBox(height: 12),
 
-                  // Actions
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -447,12 +472,12 @@ class _CreateAnnouncementDialogState
               ),
             ),
 
-            // Interactive Resize Handle (Bottom Right)
             Positioned(
               right: 0,
               bottom: 0,
               child: GestureDetector(
                 onPanUpdate: (details) {
+                  if (!mounted) return;
                   setState(() {
                     _dialogWidth = (_dialogWidth + details.delta.dx).clamp(
                       _minWidth,
