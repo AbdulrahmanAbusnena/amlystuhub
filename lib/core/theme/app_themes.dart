@@ -5,17 +5,18 @@ import 'package:flutter/material.dart';
 import 'dark_theme.dart';
 import 'midnight_theme.dart';
 
-enum AppThemeKey { lightStandard, darkSlate, midnightBlue, softPink }
+enum AppThemeKey { darkSlate, lightStandard, midnightBlue, softPink }
 
 class AppThemes {
   static ThemeData getTheme(AppThemeKey key) {
     switch (key) {
-      case AppThemeKey.lightStandard:
-        return lightStandardTheme;
-      case AppThemeKey.darkSlate:
-        return darkSlateTheme;
       case AppThemeKey.midnightBlue:
         return midnightBlueTheme;
+      case AppThemeKey.darkSlate:
+        return darkSlateTheme;
+      case AppThemeKey.lightStandard:
+        return lightStandardTheme;
+
       case AppThemeKey.softPink:
         return softPinkTheme;
     }

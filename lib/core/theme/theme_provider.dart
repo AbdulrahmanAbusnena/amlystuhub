@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'app_themes.dart';
 
 class ThemeNotifier extends StateNotifier<AppThemeKey> {
-  ThemeNotifier() : super(AppThemeKey.lightStandard);
+  ThemeNotifier() : super(AppThemeKey.darkSlate);
 
   void setTheme(AppThemeKey key) {
     state = key;
