@@ -7,10 +7,7 @@ import 'package:amlystuhub/features/announcements/presentation/state/announcemen
 class CreateAnnouncementDialog extends ConsumerStatefulWidget {
   final AnnouncementModel? announcementToEdit;
 
-  const CreateAnnouncementDialog({
-    super.key,
-    this.announcementToEdit,
-  });
+  const CreateAnnouncementDialog({super.key, this.announcementToEdit});
 
   @override
   ConsumerState<CreateAnnouncementDialog> createState() =>
@@ -41,10 +38,10 @@ class _CreateAnnouncementDialogState
     super.initState();
     final announcement = widget.announcementToEdit;
 
-    _titleController =
-        TextEditingController(text: announcement?.title ?? '');
-    _contentController =
-        TextEditingController(text: announcement?.content ?? '');
+    _titleController = TextEditingController(text: announcement?.title ?? '');
+    _contentController = TextEditingController(
+      text: announcement?.content ?? '',
+    );
     _selectedCategory = announcement?.category ?? 'General';
     _selectedGrades = List<int>.from(announcement?.targetGrades ?? []);
   }
@@ -54,6 +51,33 @@ class _CreateAnnouncementDialogState
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
+  }
+
+  void _applyFormat(String prefix, [String suffix = '']) {
+    final text = _contentController.text;
+    final selection = _contentController.selection;
+
+    if (!selection.isValid) {
+      _contentController.text = '$text$prefix$suffix';
+      return;
+    }
+
+    final start = selection.start;
+    final end = selection.end;
+    final selectedText = text.substring(start, end);
+
+    final newText = text.replaceRange(
+      start,
+      end,
+      '$prefix$selectedText$suffix',
+    );
+    _contentController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection(
+        baseOffset: start + prefix.length,
+        extentOffset: start + prefix.length + selectedText.length,
+      ),
+    );
   }
 
   Future<void> _submit() async {
@@ -113,15 +137,68 @@ class _CreateAnnouncementDialogState
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _contentController,
-              maxLines: 4,
+
+            // Embedded Markdown Field with Top Action Toolbar
+            InputDecorator(
               decoration: const InputDecoration(
                 labelText: 'Content',
                 border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Bold',
+                        icon: const Icon(Icons.format_bold),
+                        onPressed: () => _applyFormat('**', '**'),
+                      ),
+                      IconButton(
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Italics',
+                        icon: const Icon(Icons.format_italic),
+                        onPressed: () => _applyFormat('*', '*'),
+                      ),
+                      IconButton(
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Bullet List',
+                        icon: const Icon(Icons.format_list_bulleted),
+                        onPressed: () => _applyFormat('- '),
+                      ),
+                      IconButton(
+                        iconSize: 18,
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'Header',
+                        icon: const Icon(Icons.title),
+                        onPressed: () => _applyFormat('### '),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 1, thickness: 1),
+                  TextField(
+                    controller: _contentController,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      hintText: 'Type announcement details...',
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.only(top: 8),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
+
             DropdownButtonFormField<String>(
               value: _categories.contains(_selectedCategory)
                   ? _selectedCategory
@@ -138,13 +215,15 @@ class _CreateAnnouncementDialogState
               ),
             ),
             const SizedBox(height: 16),
+
             Text(
               'Target Grade Levels (Leave empty for All Grades):',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+
             Wrap(
               spacing: 8,
               children: _availableGrades.map((grade) {
@@ -186,4 +265,4 @@ class _CreateAnnouncementDialogState
       ],
     );
   }
-} 
+}

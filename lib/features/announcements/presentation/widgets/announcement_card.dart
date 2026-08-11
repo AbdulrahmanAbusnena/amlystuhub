@@ -3,6 +3,7 @@ import 'package:amlystuhub/features/announcements/presentation/state/announcemen
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnnouncementCard extends ConsumerWidget {
@@ -73,7 +74,6 @@ class AnnouncementCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row: Category Badge, Pin Button, Overflow Menu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -149,8 +149,6 @@ class AnnouncementCard extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 8),
-
-            // Title
             Text(
               announcement.title,
               style: Theme.of(
@@ -158,17 +156,17 @@ class AnnouncementCard extends ConsumerWidget {
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-
-            // Content
-            Text(
-              announcement.content,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+            MarkdownBody(
+              data: announcement.content,
+              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                  .copyWith(
+                    p: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
+                      height: 1.4,
+                    ),
+                  ),
             ),
             const SizedBox(height: 12),
-
-            // Target Audience Badges (Grades & AP Flag)
             if (announcement.targetGrades.isNotEmpty || announcement.apOnly)
               Wrap(
                 spacing: 6,
@@ -186,10 +184,8 @@ class AnnouncementCard extends ConsumerWidget {
               ),
             if (announcement.targetGrades.isNotEmpty || announcement.apOnly)
               const SizedBox(height: 12),
-
             const Divider(height: 1),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
