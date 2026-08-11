@@ -1,10 +1,5 @@
 import 'package:amlystuhub/core/theme/app_theme_extension.dart';
-import 'package:amlystuhub/core/theme/light_theme.dart';
-import 'package:amlystuhub/core/theme/pink_theme.dart';
 import 'package:flutter/material.dart';
-
-import 'dark_theme.dart';
-import 'midnight_theme.dart';
 
 enum AppThemeKey { lightStandard, darkSlate, midnightBlue, softPink }
 
@@ -22,7 +17,6 @@ class AppThemes {
       case AppFontFamily.monospace:
         return 'JetBrains Mono';
       case AppFontFamily.standard:
-      default:
         return null; // Uses system default (Roboto / SF Pro)
     }
   }
