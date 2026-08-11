@@ -9,6 +9,7 @@ class UserModel {
   final UserRole role;
   final int gradeLevel;
   final bool isApStudent;
+  final bool isStuCo;
   final DateTime createdAt;
   final DateTime? lastLoginAt; // Optional field for tracking last login time
 
@@ -19,6 +20,7 @@ class UserModel {
     required this.role,
     required this.gradeLevel,
     required this.isApStudent,
+    this.isStuCo = false,
     required this.createdAt,
     this.lastLoginAt,
   });
@@ -42,6 +44,7 @@ class UserModel {
       role: UserRole.fromString(data['role'] ?? 'student'),
       gradeLevel: data['gradeLevel'] ?? 0,
       isApStudent: data['isApStudent'] ?? false,
+      isStuCo: data['isStuCo'] ?? false,
       createdAt: _safeTimestampToDate(data['createdAt']),
       lastLoginAt: _safeTimestampToDate(data['lastLoginAt']),
     );
@@ -56,6 +59,7 @@ class UserModel {
       role: UserRole.fromString(map['role'] ?? 'student'),
       gradeLevel: map['gradeLevel'] ?? 9,
       isApStudent: map['isApStudent'] ?? false,
+      isStuCo: map['isStuCo'] ?? false,
       createdAt: _safeTimestampToDate(map['createdAt']),
       lastLoginAt: _safeTimestampToDate(map['lastLoginAt']),
     );
@@ -69,6 +73,7 @@ class UserModel {
       'role': role.toSystemString(),
       'gradeLevel': gradeLevel,
       'isApStudent': isApStudent,
+      'isStuCo': isStuCo,
       'createdAt': Timestamp.fromDate(createdAt),
       if (lastLoginAt != null) 'lastLoginAt': Timestamp.fromDate(lastLoginAt!),
     };
@@ -82,6 +87,7 @@ class UserModel {
     UserRole? role,
     int? gradeLevel,
     bool? isApStudent,
+    bool? isStuCo,
     DateTime? createdAt,
     DateTime? lastLoginAt,
   }) {
@@ -92,6 +98,7 @@ class UserModel {
       role: role ?? this.role,
       gradeLevel: gradeLevel ?? this.gradeLevel,
       isApStudent: isApStudent ?? this.isApStudent,
+      isStuCo: isStuCo ?? this.isStuCo,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );
@@ -113,6 +120,7 @@ class UserModel {
         other.role == role &&
         other.gradeLevel == gradeLevel &&
         other.isApStudent == isApStudent &&
+        other.isStuCo == isStuCo &&
         other.createdAt == createdAt &&
         other.lastLoginAt == lastLoginAt;
   }
@@ -125,12 +133,13 @@ class UserModel {
         role.hashCode ^
         gradeLevel.hashCode ^
         isApStudent.hashCode ^
+        isStuCo.hashCode ^
         createdAt.hashCode ^
         lastLoginAt.hashCode;
   }
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, name: $name, email: $email, role: $role, gradeLevel: $gradeLevel, isApStudent: $isApStudent, createdAt: $createdAt, lastLogin: $lastLoginAt)';
+    return 'UserModel(uid: $uid, name: $name, email: $email, role: $role, gradeLevel: $gradeLevel, isApStudent: $isApStudent, isStuCo: $isStuCo, createdAt: $createdAt, lastLogin: $lastLoginAt)';
   }
 }

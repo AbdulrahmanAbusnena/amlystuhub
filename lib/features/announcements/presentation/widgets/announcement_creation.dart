@@ -18,13 +18,14 @@ class _CreateAnnouncementDialogState
     extends ConsumerState<CreateAnnouncementDialog> {
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
+  late final FocusNode _contentFocusNode;
   late String _selectedCategory;
   late List<int> _selectedGrades;
   bool _isLoading = false;
 
   // Window sizing constraints
-  double _dialogWidth = 550.0;
-  double _dialogHeight = 620.0;
+  double _dialogWidth = 580.0;
+  double _dialogHeight = 640.0;
 
   static const double _minWidth = 450.0;
   static const double _maxWidth = 900.0;
@@ -51,6 +52,7 @@ class _CreateAnnouncementDialogState
     _contentController = TextEditingController(
       text: announcement?.content ?? '',
     );
+    _contentFocusNode = FocusNode();
     _selectedCategory = announcement?.category ?? 'General';
     _selectedGrades = List<int>.from(announcement?.targetGrades ?? []);
   }
@@ -59,42 +61,45 @@ class _CreateAnnouncementDialogState
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
+    _contentFocusNode.dispose();
     super.dispose();
   }
 
-  /// Organic Markdown formatting insertion
-  void _applyInlineFormat(String prefix, String suffix) {
+  /// Formats selected text smoothly or surrounds the cursor position cleanly
+  void _applySelectionFormat(String prefix, String suffix) {
     final text = _contentController.text;
     final selection = _contentController.selection;
 
-    if (!selection.isValid || selection.isCollapsed) {
-      // No text selected: insert tags and put cursor right in the middle
-      final start = selection.isValid ? selection.start : text.length;
-      final newText = text.replaceRange(start, start, '$prefix$suffix');
-      _contentController.value = TextEditingValue(
-        text: newText,
-        selection: TextSelection.collapsed(offset: start + prefix.length),
-      );
+    if (!selection.isValid) {
+      _contentController.text = '$text$prefix$suffix';
       return;
     }
 
-    // Wrap highlighted text
-    final start = selection.start;
-    final end = selection.end;
-    final selectedText = text.substring(start, end);
-
-    final newText = text.replaceRange(
-      start,
-      end,
-      '$prefix$selectedText$suffix',
-    );
-    _contentController.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection(
-        baseOffset: start + prefix.length,
-        extentOffset: start + prefix.length + selectedText.length,
-      ),
-    );
+    if (selection.isCollapsed) {
+      final pos = selection.start;
+      final newText = text.replaceRange(pos, pos, '$prefix$suffix');
+      _contentController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: pos + prefix.length),
+      );
+    } else {
+      final start = selection.start;
+      final end = selection.end;
+      final selectedText = text.substring(start, end);
+      final newText = text.replaceRange(
+        start,
+        end,
+        '$prefix$selectedText$suffix',
+      );
+      _contentController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection(
+          baseOffset: start + prefix.length,
+          extentOffset: start + prefix.length + selectedText.length,
+        ),
+      );
+    }
+    _contentFocusNode.requestFocus();
   }
 
   void _applyLinePrefix(String prefix) {
@@ -102,14 +107,14 @@ class _CreateAnnouncementDialogState
     final selection = _contentController.selection;
     final cursorOffset = selection.isValid ? selection.start : text.length;
 
-    // Find start of current line
     final lineStart = text.lastIndexOf('\n', cursorOffset - 1) + 1;
-
     final newText = text.replaceRange(lineStart, lineStart, prefix);
+
     _contentController.value = TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(offset: cursorOffset + prefix.length),
     );
+    _contentFocusNode.requestFocus();
   }
 
   Future<void> _submit() async {
@@ -155,203 +160,236 @@ class _CreateAnnouncementDialogState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(24),
       child: Container(
         width: _dialogWidth,
         height: _dialogHeight,
-        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).dialogBackgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 16,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
         child: Stack(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Window Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isEditing ? 'Edit Announcement' : 'New Announcement',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                const SizedBox(height: 8),
-
-                // Main Form Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Title',
-                            border: OutlineInputBorder(),
-                          ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Bar with Copyable Window Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SelectableText(
+                        isEditing ? 'Edit Announcement' : 'New Announcement',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 12),
+                      ),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20),
 
-                        // Embedded Format Box
-                        InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Content',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
+                  // Main Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: _titleController,
+                            enableInteractiveSelection: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Title',
+                              border: OutlineInputBorder(),
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  IconButton(
-                                    iconSize: 18,
-                                    visualDensity: VisualDensity.compact,
-                                    tooltip: 'Bold',
-                                    icon: const Icon(Icons.format_bold),
-                                    onPressed: () =>
-                                        _applyInlineFormat('**', '**'),
+                          const SizedBox(height: 16),
+
+                          // Integrated Text Formatting Box
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Action Bar
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
                                   ),
-                                  IconButton(
-                                    iconSize: 18,
-                                    visualDensity: VisualDensity.compact,
-                                    tooltip: 'Italics',
-                                    icon: const Icon(Icons.format_italic),
-                                    onPressed: () =>
-                                        _applyInlineFormat('*', '*'),
-                                  ),
-                                  IconButton(
-                                    iconSize: 18,
-                                    visualDensity: VisualDensity.compact,
-                                    tooltip: 'Bullet List',
-                                    icon: const Icon(
-                                      Icons.format_list_bulleted,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(7),
                                     ),
-                                    onPressed: () => _applyLinePrefix('- '),
                                   ),
-                                  IconButton(
-                                    iconSize: 18,
-                                    visualDensity: VisualDensity.compact,
-                                    tooltip: 'Header',
-                                    icon: const Icon(Icons.title),
-                                    onPressed: () => _applyLinePrefix('### '),
+                                  child: Row(
+                                    children: [
+                                      _buildFormatButton(
+                                        icon: Icons.format_bold,
+                                        tooltip: 'Bold',
+                                        onPressed: () =>
+                                            _applySelectionFormat('**', '**'),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_italic,
+                                        tooltip: 'Italic',
+                                        onPressed: () =>
+                                            _applySelectionFormat('*', '*'),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_list_bulleted,
+                                        tooltip: 'Bullet List',
+                                        onPressed: () => _applyLinePrefix('- '),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.title,
+                                        tooltip: 'Heading',
+                                        onPressed: () =>
+                                            _applyLinePrefix('### '),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              const Divider(height: 1, thickness: 1),
-                              TextField(
-                                controller: _contentController,
-                                maxLines: 6,
-                                decoration: const InputDecoration(
-                                  hintText: 'Type announcement details...',
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.only(top: 8),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        DropdownButtonFormField<String>(
-                          value: _categories.contains(_selectedCategory)
-                              ? _selectedCategory
-                              : 'General',
-                          items: _categories
-                              .map(
-                                (cat) => DropdownMenuItem(
-                                  value: cat,
-                                  child: Text(cat),
+                                const Divider(height: 1),
+                                // Content Field with selection enabled
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: TextField(
+                                    controller: _contentController,
+                                    focusNode: _contentFocusNode,
+                                    maxLines: 6,
+                                    enableInteractiveSelection: true,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Write content here...',
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                  ),
                                 ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            if (val != null) {
-                              setState(() => _selectedCategory = val);
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Category',
-                            border: OutlineInputBorder(),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        Text(
-                          'Target Grade Levels (Leave empty for All Grades):',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: _categories.contains(_selectedCategory)
+                                ? _selectedCategory
+                                : 'General',
+                            items: _categories
+                                .map(
+                                  (cat) => DropdownMenuItem(
+                                    value: cat,
+                                    child: Text(cat),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() => _selectedCategory = val);
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
 
-                        Wrap(
-                          spacing: 8,
-                          children: _availableGrades.map((grade) {
-                            final isSelected = _selectedGrades.contains(grade);
-                            return FilterChip(
-                              label: Text('Grade $grade'),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedGrades.add(grade);
-                                  } else {
-                                    _selectedGrades.remove(grade);
-                                  }
-                                  _selectedGrades.sort();
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                          SelectableText(
+                            'Target Grade Levels (Leave empty for All Grades):',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+
+                          Wrap(
+                            spacing: 8,
+                            children: _availableGrades.map((grade) {
+                              final isSelected = _selectedGrades.contains(
+                                grade,
+                              );
+                              return FilterChip(
+                                label: Text('Grade $grade'),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedGrades.add(grade);
+                                    } else {
+                                      _selectedGrades.remove(grade);
+                                    }
+                                    _selectedGrades.sort();
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                // Dialog Actions
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: _isLoading ? null : _submit,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(isEditing ? 'Save Changes' : 'Post'),
-                    ),
-                  ],
-                ),
-              ],
+                  // Actions
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: TextButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _submit,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(isEditing ? 'Save Changes' : 'Post'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
 
-            // Resizable Window Handle (Bottom Right)
+            // Interactive Resize Handle (Bottom Right)
             Positioned(
-              right: -8,
-              bottom: -8,
+              right: 0,
+              bottom: 0,
               child: GestureDetector(
                 onPanUpdate: (details) {
                   setState(() {
@@ -366,14 +404,15 @@ class _CreateAnnouncementDialogState
                   });
                 },
                 child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  cursor: SystemMouseCursors.resizeDownRight,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    width: 24,
+                    height: 24,
                     color: Colors.transparent,
-                    child: const Icon(
+                    child: Icon(
                       Icons.south_east,
-                      size: 16,
-                      color: Colors.grey,
+                      size: 14,
+                      color: Colors.grey.shade500,
                     ),
                   ),
                 ),
@@ -381,6 +420,22 @@ class _CreateAnnouncementDialogState
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFormatButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: IconButton(
+        icon: Icon(icon, size: 18),
+        tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        onPressed: onPressed,
       ),
     );
   }
