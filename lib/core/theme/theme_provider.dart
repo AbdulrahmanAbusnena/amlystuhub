@@ -1,25 +1,23 @@
-import 'package:amlystuhub/core/theme/presets/classic_cyberdeck.dart';
-import 'package:amlystuhub/core/theme/presets/lavendar_blueprint.dart';
-import 'package:amlystuhub/core/theme/presets/sakura_cream.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'app_themes.dart';
 
-class ThemeProvider extends ChangeNotifier {
-  ThemeData _themeData = sakuraCreamMode;
+class ThemeNotifier extends StateNotifier<AppThemeKey> {
+  ThemeNotifier() : super(AppThemeKey.lightStandard);
 
-  ThemeData get themeData => _themeData;
-
-  set themeData(ThemeData themeData) {
-    _themeData = themeData;
-    notifyListeners();
-  }
-
-  void toggleTheme() {
-    if (_themeData == sakuraCreamMode) {
-      themeData = cyberDeckMode;
-    } else if (_themeData == cyberDeckMode) {
-      themeData = lavenderBlueprintMode;
-    } else {
-      themeData = sakuraCreamMode;
-    }
+  void setTheme(AppThemeKey key) {
+    state = key;
   }
 }
+
+final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, AppThemeKey>(
+  (ref) {
+    return ThemeNotifier();
+  },
+);
+
+final currentThemeProvider = Provider<ThemeData>((ref) {
+  final activeKey = ref.watch(themeNotifierProvider);
+  return AppThemes.getTheme(activeKey);
+});
