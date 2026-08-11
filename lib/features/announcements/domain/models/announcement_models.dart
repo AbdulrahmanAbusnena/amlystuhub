@@ -12,8 +12,12 @@ class AnnouncementModel {
   final String category;
   final List<int> targetGrades;
   final bool apOnly;
+
   final DateTime createdAt;
   final List<String> pinnedByUids;
+  final List<String> imageUrls;
+  final List<String> attachmentUrls;
+  final List<String> linkUrls;
 
   AnnouncementModel({
     required this.id,
@@ -27,6 +31,9 @@ class AnnouncementModel {
     required this.apOnly,
     required this.createdAt,
     this.pinnedByUids = const [],
+    this.imageUrls = const [],
+    this.attachmentUrls = const [],
+    this.linkUrls = const [],
   });
 
   static DateTime _safeTimestampToDate(dynamic value) {
@@ -48,8 +55,12 @@ class AnnouncementModel {
       category: data['category'] ?? 'General',
       targetGrades: List<int>.from(data['targetGrades'] ?? []),
       apOnly: data['apOnly'] ?? false,
+
       createdAt: _safeTimestampToDate(data['createdAt']),
       pinnedByUids: List<String>.from(data['pinnedByUids'] ?? []),
+      imageUrls: List<String>.from(data['imageUrls'] ?? []),
+      attachmentUrls: List<String>.from(data['attachmentUrls'] ?? []),
+      linkUrls: List<String>.from(data['linkUrls'] ?? []),
     );
   }
 
@@ -63,8 +74,12 @@ class AnnouncementModel {
       'category': category,
       'targetGrades': targetGrades,
       'apOnly': apOnly,
+
       'createdAt': Timestamp.fromDate(createdAt),
       'pinnedByUids': pinnedByUids,
+      'imageUrls': imageUrls,
+      'attachmentUrls': attachmentUrls,
+      'linkUrls': linkUrls,
     };
   }
 }

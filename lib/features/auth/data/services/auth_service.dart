@@ -41,6 +41,7 @@ class AuthService {
     required String password,
     required int gradeLevel,
     required bool isApStudent,
+    required bool isStuCo,
   }) async {
     UserCredential? credential;
 
@@ -68,6 +69,7 @@ class AuthService {
         role: UserRole.student, // Type-safe initialization
         gradeLevel: gradeLevel,
         isApStudent: isApStudent,
+        isStuCo: isStuCo,
         createdAt: DateTime.now(),
         lastLoginAt: DateTime.now(),
       );

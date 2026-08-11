@@ -51,6 +51,7 @@ class AuthController extends StateNotifier<AuthState> {
     String password,
     int gradeLevel,
     bool isApStudent,
+    bool isStuCo,
   ) async {
     state = AuthState.loading();
     try {
@@ -64,6 +65,7 @@ class AuthController extends StateNotifier<AuthState> {
         password: password,
         gradeLevel: gradeLevel,
         isApStudent: isApStudent,
+        isStuCo: isStuCo,
       );
       state = AuthState.authenticated();
     } catch (e) {

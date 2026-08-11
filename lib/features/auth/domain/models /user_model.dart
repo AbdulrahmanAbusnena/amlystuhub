@@ -20,7 +20,7 @@ class UserModel {
     required this.role,
     required this.gradeLevel,
     required this.isApStudent,
-    this.isStuCo = false,
+    required this.isStuCo,
     required this.createdAt,
     this.lastLoginAt,
   });

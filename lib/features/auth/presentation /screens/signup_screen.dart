@@ -21,7 +21,7 @@ class _SignUpState extends ConsumerState<SignUp> {
   // Default Data
   String _selectedGrade = 'Grade 10';
   bool _isApStudent = false;
-
+  bool _isStuCo = false;
   // Grading List
   final Map<String, Color> _gradeColors = {
     'Grade 9': const Color(0xFFFDE49E),
@@ -59,6 +59,7 @@ class _SignUpState extends ConsumerState<SignUp> {
           password,
           _parseGradeLevel(_selectedGrade),
           _isApStudent,
+          _isStuCo,
         );
   }
 

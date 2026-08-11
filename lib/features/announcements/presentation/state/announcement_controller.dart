@@ -22,6 +22,9 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     required String authorId,
     required String authorName,
     required UserRole authorRole,
+    List<String> imageUrls = const [],
+    List<String> attachmentUrls = const [],
+    List<String> linkUrls = const [],
   }) async {
     state = AnnouncementState.loading();
 
@@ -40,7 +43,11 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
         category: category,
         targetGrades: targetGrades,
         apOnly: apOnly,
+        pinnedByUids: const [],
         createdAt: DateTime.now(),
+        imageUrls: imageUrls,
+        attachmentUrls: attachmentUrls,
+        linkUrls: linkUrls,
       );
 
       await _service.publishAnnouncement(newAnnouncement);
@@ -60,6 +67,9 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
     required String category,
     required List<int> targetGrades,
     required bool apOnly,
+    List<String>? imageUrls,
+    List<String>? attachmentUrls,
+    List<String>? linkUrls,
   }) async {
     state = AnnouncementState.loading();
 
@@ -68,12 +78,15 @@ class AnnouncementController extends StateNotifier<AnnouncementState> {
         throw 'Title and Content fields cannot be empty.';
       }
 
-      final updateMap = {
+      final updateMap = <String, dynamic>{
         'title': title.trim(),
         'content': content.trim(),
         'category': category,
         'targetGrades': targetGrades,
         'apOnly': apOnly,
+        if (imageUrls != null) 'imageUrls': imageUrls,
+        if (attachmentUrls != null) 'attachmentUrls': attachmentUrls,
+        if (linkUrls != null) 'linkUrls': linkUrls,
       };
 
       await _service.updateAnnouncement(announcementId, updateMap);
@@ -142,6 +155,7 @@ final filteredAnnouncementsProvider = StreamProvider<List<AnnouncementModel>>((
       final matchesGrade =
           a.targetGrades.isEmpty || a.targetGrades.contains(user.gradeLevel);
       final matchesAp = !a.apOnly || user.isApStudent;
+
       return matchesGrade && matchesAp;
     }).toList();
 
