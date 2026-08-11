@@ -3,6 +3,7 @@ import 'package:amlystuhub/features/announcements/presentation/state/announcemen
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -158,11 +159,26 @@ class AnnouncementCard extends ConsumerWidget {
             const SizedBox(height: 6),
             MarkdownBody(
               data: announcement.content,
+              onTapLink: (text, href, title) {
+                if (href != null) {
+                  Clipboard.setData(ClipboardData(text: href));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Link copied to clipboard!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
               styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                   .copyWith(
                     p: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.black87,
                       height: 1.4,
+                    ),
+                    a: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
             ),

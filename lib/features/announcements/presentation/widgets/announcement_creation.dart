@@ -1,4 +1,5 @@
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:amlystuhub/features/announcements/domain/models/announcement_models.dart';
@@ -18,23 +19,21 @@ class _CreateAnnouncementDialogState
     extends ConsumerState<CreateAnnouncementDialog> {
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
-  late final TextEditingController _linkInputController;
-  late final TextEditingController _imageInputController;
   late final FocusNode _contentFocusNode;
-
   late String _selectedCategory;
   late List<int> _selectedGrades;
-  late List<String> _linkUrls;
-  late List<String> _imageUrls;
+
+  final List<PlatformFile> _selectedFiles = [];
   bool _isLoading = false;
 
-  double _dialogWidth = 620.0;
-  double _dialogHeight = 700.0;
+  // Window sizing constraints
+  double _dialogWidth = 580.0;
+  double _dialogHeight = 640.0;
 
-  static const double _minWidth = 480.0;
-  static const double _maxWidth = 950.0;
-  static const double _minHeight = 550.0;
-  static const double _maxHeight = 850.0;
+  static const double _minWidth = 450.0;
+  static const double _maxWidth = 900.0;
+  static const double _minHeight = 500.0;
+  static const double _maxHeight = 800.0;
 
   final List<int> _availableGrades = [9, 10, 11, 12];
   final List<String> _categories = [
@@ -56,52 +55,31 @@ class _CreateAnnouncementDialogState
     _contentController = TextEditingController(
       text: announcement?.content ?? '',
     );
-    _linkInputController = TextEditingController();
-    _imageInputController = TextEditingController();
     _contentFocusNode = FocusNode();
-
     _selectedCategory = announcement?.category ?? 'General';
     _selectedGrades = List<int>.from(announcement?.targetGrades ?? []);
-    _linkUrls = List<String>.from(announcement?.linkUrls ?? []);
-    _imageUrls = List<String>.from(announcement?.imageUrls ?? []);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    _linkInputController.dispose();
-    _imageInputController.dispose();
     _contentFocusNode.dispose();
     super.dispose();
   }
 
-  void _addLink() {
-    final val = _linkInputController.text.trim();
-    if (val.isNotEmpty && !_linkUrls.contains(val)) {
-      setState(() {
-        _linkUrls.add(val);
-        _linkInputController.clear();
-      });
-    }
-  }
-
-  void _addImage() {
-    final val = _imageInputController.text.trim();
-    if (val.isNotEmpty && !_imageUrls.contains(val)) {
-      setState(() {
-        _imageUrls.add(val);
-        _imageInputController.clear();
-      });
-    }
-  }
-
+  /// Formats selected text smoothly or surrounds the cursor position cleanly
   void _applySelectionFormat(String prefix, String suffix) {
     final text = _contentController.text;
     final selection = _contentController.selection;
 
-    if (!selection.isValid || selection.isCollapsed) {
-      final pos = selection.isValid ? selection.start : text.length;
+    if (!selection.isValid) {
+      _contentController.text = '$text$prefix$suffix';
+      return;
+    }
+
+    if (selection.isCollapsed) {
+      final pos = selection.start;
       final newText = text.replaceRange(pos, pos, '$prefix$suffix');
       _contentController.value = TextEditingValue(
         text: newText,
@@ -127,11 +105,37 @@ class _CreateAnnouncementDialogState
     _contentFocusNode.requestFocus();
   }
 
+  void _applyLinePrefix(String prefix) {
+    final text = _contentController.text;
+    final selection = _contentController.selection;
+    final cursorOffset = selection.isValid ? selection.start : text.length;
+
+    final lineStart = text.lastIndexOf('\n', cursorOffset - 1) + 1;
+    final newText = text.replaceRange(lineStart, lineStart, prefix);
+
+    _contentController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: cursorOffset + prefix.length),
+    );
+    _contentFocusNode.requestFocus();
+  }
+
+  Future<void> _pickDeviceFiles({FileType type = FileType.any}) async {
+    final result = await FilePicker.pickFiles(type: type, allowMultiple: true);
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _selectedFiles.addAll(result.files);
+      });
+    }
+  }
+
   Future<void> _submit() async {
     final user = ref.read(currentUserModelProvider).value;
     if (user == null) return;
 
     setState(() => _isLoading = true);
+
     final controller = ref.read(announcementControllerProvider.notifier);
     final isApCategory = _selectedCategory == 'AP';
     bool success;
@@ -144,8 +148,6 @@ class _CreateAnnouncementDialogState
         category: _selectedCategory,
         targetGrades: _selectedGrades,
         apOnly: isApCategory,
-        imageUrls: _imageUrls,
-        linkUrls: _linkUrls,
       );
     } else {
       success = await controller.createAnnouncement(
@@ -157,8 +159,6 @@ class _CreateAnnouncementDialogState
         authorId: user.uid,
         authorName: user.name,
         authorRole: user.role,
-        imageUrls: _imageUrls,
-        linkUrls: _linkUrls,
       );
     }
 
@@ -196,6 +196,7 @@ class _CreateAnnouncementDialogState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Title Bar with Copyable Window Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -205,13 +206,18 @@ class _CreateAnnouncementDialogState
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.close, size: 20),
-                        onPressed: () => Navigator.of(context).pop(),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                       ),
                     ],
                   ),
                   const Divider(height: 20),
+
+                  // Main Scrollable Content
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -226,6 +232,8 @@ class _CreateAnnouncementDialogState
                             ),
                           ),
                           const SizedBox(height: 16),
+
+                          // Integrated Text Formatting Box
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade400),
@@ -234,6 +242,7 @@ class _CreateAnnouncementDialogState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Action Bar
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -247,35 +256,63 @@ class _CreateAnnouncementDialogState
                                   ),
                                   child: Row(
                                     children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.format_bold,
-                                          size: 18,
-                                        ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_bold,
+                                        tooltip: 'Bold',
                                         onPressed: () =>
                                             _applySelectionFormat('**', '**'),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.format_italic,
-                                          size: 18,
-                                        ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_italic,
+                                        tooltip: 'Italic',
                                         onPressed: () =>
                                             _applySelectionFormat('*', '*'),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_list_bulleted,
+                                        tooltip: 'Bullet List',
+                                        onPressed: () => _applyLinePrefix('- '),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.title,
+                                        tooltip: 'Heading',
+                                        onPressed: () =>
+                                            _applyLinePrefix('### '),
+                                      ),
+                                      const VerticalDivider(
+                                        width: 12,
+                                        indent: 6,
+                                        endIndent: 6,
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.image_outlined,
+                                        tooltip: 'Attach Image',
+                                        onPressed: () => _pickDeviceFiles(
+                                          type: FileType.image,
+                                        ),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.attach_file_outlined,
+                                        tooltip: 'Attach File',
+                                        onPressed: () => _pickDeviceFiles(
+                                          type: FileType.any,
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 const Divider(height: 1),
+                                // Content Field with selection enabled
                                 Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: TextField(
                                     controller: _contentController,
                                     focusNode: _contentFocusNode,
-                                    maxLines: 5,
+                                    maxLines: 6,
                                     enableInteractiveSelection: true,
+                                    keyboardType: TextInputType.multiline,
                                     decoration: const InputDecoration(
-                                      hintText: 'Write content details...',
+                                      hintText: 'Write content here...',
                                       border: InputBorder.none,
                                       isDense: true,
                                     ),
@@ -284,94 +321,35 @@ class _CreateAnnouncementDialogState
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
 
-                          // Links Section
-                          Text(
-                            'Attach Web Links',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _linkInputController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'https://...',
-                                    isDense: true,
-                                    border: OutlineInputBorder(),
+                          if (_selectedFiles.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: _selectedFiles.map((file) {
+                                return Chip(
+                                  avatar: Icon(
+                                    file.extension == 'jpg' ||
+                                            file.extension == 'png'
+                                        ? Icons.image
+                                        : Icons.insert_drive_file,
+                                    size: 16,
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              IconButton.filledTonal(
-                                icon: const Icon(Icons.add_link),
-                                onPressed: _addLink,
-                              ),
-                            ],
-                          ),
-                          Wrap(
-                            spacing: 6,
-                            children: _linkUrls
-                                .map(
-                                  (link) => Chip(
-                                    label: Text(
-                                      link,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    onDeleted: () =>
-                                        setState(() => _linkUrls.remove(link)),
+                                  label: Text(
+                                    file.name,
+                                    style: const TextStyle(fontSize: 12),
                                   ),
-                                )
-                                .toList(),
-                          ),
-                          const SizedBox(height: 16),
+                                  onDeleted: () {
+                                    setState(() {
+                                      _selectedFiles.remove(file);
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ],
 
-                          // Images Section
-                          Text(
-                            'Attach Image URLs',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _imageInputController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Image direct URL...',
-                                    isDense: true,
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              IconButton.filledTonal(
-                                icon: const Icon(Icons.add_a_photo_outlined),
-                                onPressed: _addImage,
-                              ),
-                            ],
-                          ),
-                          Wrap(
-                            spacing: 6,
-                            children: _imageUrls
-                                .map(
-                                  (img) => Chip(
-                                    label: Text(
-                                      img,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    onDeleted: () =>
-                                        setState(() => _imageUrls.remove(img)),
-                                  ),
-                                )
-                                .toList(),
-                          ),
                           const SizedBox(height: 16),
 
                           DropdownButtonFormField<String>(
@@ -387,46 +365,89 @@ class _CreateAnnouncementDialogState
                                 )
                                 .toList(),
                             onChanged: (val) {
-                              if (val != null)
+                              if (val != null) {
                                 setState(() => _selectedCategory = val);
+                              }
                             },
                             decoration: const InputDecoration(
                               labelText: 'Category',
                               border: OutlineInputBorder(),
                             ),
                           ),
+                          const SizedBox(height: 16),
+
+                          SelectableText(
+                            'Target Grade Levels (Leave empty for All Grades):',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+
+                          Wrap(
+                            spacing: 8,
+                            children: _availableGrades.map((grade) {
+                              final isSelected = _selectedGrades.contains(
+                                grade,
+                              );
+                              return FilterChip(
+                                label: Text('Grade $grade'),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedGrades.add(grade);
+                                    } else {
+                                      _selectedGrades.remove(grade);
+                                    }
+                                    _selectedGrades.sort();
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
                         ],
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
+                  // Actions
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: TextButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: _isLoading ? null : _submit,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(isEditing ? 'Save Changes' : 'Post'),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _submit,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(isEditing ? 'Save Changes' : 'Post'),
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
+
+            // Interactive Resize Handle (Bottom Right)
             Positioned(
               right: 0,
               bottom: 0,
@@ -460,6 +481,22 @@ class _CreateAnnouncementDialogState
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFormatButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: IconButton(
+        icon: Icon(icon, size: 18),
+        tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        onPressed: onPressed,
       ),
     );
   }
