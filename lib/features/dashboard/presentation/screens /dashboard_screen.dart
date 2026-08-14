@@ -28,8 +28,22 @@ class DashboardScreen extends ConsumerWidget {
           'Dashboard',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
-        elevation: 0,
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.accessibility_new_outlined),
+            tooltip: 'Accessibility Settings',
+            onPressed: () {
+              // Quick route/sheet for Accessibility toggles
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Profile Settings',
+            onPressed: () => onNavigateToTab?.call(4), // Profile Index
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -43,24 +57,22 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header Banner
+                    // Header Banner with Profile Welcome
                     _buildHeaderBanner(context, user?.name ?? 'Student'),
                     const SizedBox(height: 20),
 
-                    // Grid vs Stack Layout
+                    // Grid Layout
                     if (isDesktop)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Primary Column
+                          // Primary Column (Announcements & Academic Overview)
                           Expanded(
                             flex: 3,
                             child: Column(
                               children: [
                                 RecentAnnouncementsWidget(
-                                  onViewAllTap: () => onNavigateToTab?.call(
-                                    1,
-                                  ), // Index for Announcements tab
+                                  onViewAllTap: () => onNavigateToTab?.call(1),
                                 ),
                                 const SizedBox(height: 20),
                                 _buildAcademicOverviewWidget(context),
@@ -69,7 +81,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 20),
 
-                          // Sidebar Column
+                          // Sidebar Column (Quick Actions, Advocacy & Schedule)
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -78,6 +90,8 @@ class DashboardScreen extends ConsumerWidget {
                                   context,
                                   isPrivilegedUser,
                                 ),
+                                const SizedBox(height: 20),
+                                _buildAdvocacyWidget(context),
                                 const SizedBox(height: 20),
                                 _buildSchedulePreviewWidget(context),
                               ],
@@ -94,9 +108,11 @@ class DashboardScreen extends ConsumerWidget {
                             onViewAllTap: () => onNavigateToTab?.call(1),
                           ),
                           const SizedBox(height: 16),
-                          _buildSchedulePreviewWidget(context),
+                          _buildAdvocacyWidget(context),
                           const SizedBox(height: 16),
                           _buildAcademicOverviewWidget(context),
+                          const SizedBox(height: 16),
+                          _buildSchedulePreviewWidget(context),
                         ],
                       ),
                   ],
@@ -119,20 +135,27 @@ class DashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Welcome, $userName',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome back, $userName',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Your central hub for academic updates, student voice, and announcements.',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Here is your live summary of announcements, schedules, and academic updates.',
-            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -187,7 +210,158 @@ class DashboardScreen extends ConsumerWidget {
                   label: const Text('Academics'),
                   onPressed: () => onNavigateToTab?.call(2),
                 ),
+                ActionChip(
+                  avatar: Icon(
+                    Icons.record_voice_over_outlined,
+                    size: 16,
+                    color: colorScheme.primary,
+                  ),
+                  label: const Text('Advocacy & Surveys'),
+                  onPressed: () => onNavigateToTab?.call(3),
+                ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdvocacyWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Advocacy & Student Voice',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.how_to_vote_outlined,
+                  size: 18,
+                  color: colorScheme.primary,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Voice your concerns or complete active StuCo policy surveys.',
+              style: TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.4,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.assignment_outlined,
+                    size: 20,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      '1 Active Survey Available',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => onNavigateToTab?.call(3),
+                    child: const Text('Open'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAcademicOverviewWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Academic Hub',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => onNavigateToTab?.call(2),
+                  child: const Text('Go to Hub'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.4,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.4),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.menu_book_outlined, color: colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pre-AP & AP Resources',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Text(
+                          'Access subject entry guides and orientation packages.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -226,13 +400,6 @@ class DashboardScreen extends ConsumerWidget {
               time: 'Today',
               title: 'AP Course Orientation',
               subtitle: 'Student Center • 2:00 PM',
-            ),
-            const SizedBox(height: 8),
-            _buildScheduleItem(
-              context,
-              time: 'Tomorrow',
-              title: 'StuCo Weekly Sync',
-              subtitle: 'Room 204 • 3:30 PM',
             ),
           ],
         ),
@@ -294,67 +461,6 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAcademicOverviewWidget(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Academic Overview',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.4,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.4),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.menu_book_outlined, color: colorScheme.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Pre-AP & AP Resource Hub',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        Text(
-                          'Access subject entry guides and orientation packages.',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
