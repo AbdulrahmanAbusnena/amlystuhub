@@ -1,18 +1,35 @@
+import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
+import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
+import 'package:amlystuhub/features/dashboard/presentation/screens%20/recent_announcement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DashboardScreen extends ConsumerWidget {
-  const DashboardScreen({super.key});
+  final Function(int)? onNavigateToTab;
+
+  const DashboardScreen({super.key, this.onNavigateToTab});
+
+  void _showCreateAnnouncementDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const CreateAnnouncementDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserModelProvider);
+    final user = userAsync.value;
+    final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Dashboard',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: false,
+        centerTitle: true,
+        elevation: 0,
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -26,52 +43,60 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top Banner / Quick Header Context
-                    _buildHeaderBanner(context),
+                    // Header Banner
+                    _buildHeaderBanner(context, user?.name ?? 'Student'),
                     const SizedBox(height: 20),
 
-                    // Dynamic Grid Layout based on Screen Width
+                    // Grid vs Stack Layout
                     if (isDesktop)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Main Column (Announcements & Academic Overview)
+                          // Primary Column
                           Expanded(
                             flex: 3,
                             child: Column(
                               children: [
-                                _buildAnnouncementsPreviewWidget(),
+                                RecentAnnouncementsWidget(
+                                  onViewAllTap: () => onNavigateToTab?.call(
+                                    1,
+                                  ), // Index for Announcements tab
+                                ),
                                 const SizedBox(height: 20),
-                                _buildAcademicOverviewWidget(),
+                                _buildAcademicOverviewWidget(context),
                               ],
                             ),
                           ),
                           const SizedBox(width: 20),
 
-                          // Side Column (Schedule, Quick Actions)
+                          // Sidebar Column
                           Expanded(
                             flex: 2,
                             child: Column(
                               children: [
-                                _buildQuickActionsWidget(context),
+                                _buildQuickActionsWidget(
+                                  context,
+                                  isPrivilegedUser,
+                                ),
                                 const SizedBox(height: 20),
-                                _buildSchedulePreviewWidget(),
+                                _buildSchedulePreviewWidget(context),
                               ],
                             ),
                           ),
                         ],
                       )
                     else
-                      // Mobile / Tablet Single Column Stack
                       Column(
                         children: [
-                          _buildQuickActionsWidget(context),
+                          _buildQuickActionsWidget(context, isPrivilegedUser),
                           const SizedBox(height: 16),
-                          _buildAnnouncementsPreviewWidget(),
+                          RecentAnnouncementsWidget(
+                            onViewAllTap: () => onNavigateToTab?.call(1),
+                          ),
                           const SizedBox(height: 16),
-                          _buildSchedulePreviewWidget(),
+                          _buildSchedulePreviewWidget(context),
                           const SizedBox(height: 16),
-                          _buildAcademicOverviewWidget(),
+                          _buildAcademicOverviewWidget(context),
                         ],
                       ),
                   ],
@@ -84,7 +109,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderBanner(BuildContext context) {
+  Widget _buildHeaderBanner(BuildContext context, String userName) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
@@ -92,13 +117,13 @@ class DashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome back',
+            'Welcome, $userName',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
@@ -106,7 +131,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Here is an overview of updates, upcoming schedules, and announcements.',
+            'Here is your live summary of announcements, schedules, and academic updates.',
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ],
@@ -114,7 +139,9 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActionsWidget(BuildContext context) {
+  Widget _buildQuickActionsWidget(BuildContext context, bool isPrivilegedUser) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -132,20 +159,33 @@ class DashboardScreen extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
+                if (isPrivilegedUser)
+                  ActionChip(
+                    avatar: Icon(
+                      Icons.add_comment_outlined,
+                      size: 16,
+                      color: colorScheme.primary,
+                    ),
+                    label: const Text('New Post'),
+                    onPressed: () => _showCreateAnnouncementDialog(context),
+                  ),
                 ActionChip(
-                  avatar: const Icon(Icons.campaign, size: 18),
-                  label: const Text('Post Announcement'),
-                  onPressed: () {},
+                  avatar: Icon(
+                    Icons.campaign_outlined,
+                    size: 16,
+                    color: colorScheme.primary,
+                  ),
+                  label: const Text('Announcements'),
+                  onPressed: () => onNavigateToTab?.call(1),
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.event, size: 18),
-                  label: const Text('Schedule'),
-                  onPressed: () {},
-                ),
-                ActionChip(
-                  avatar: const Icon(Icons.school, size: 18),
-                  label: const Text('Academic Hub'),
-                  onPressed: () {},
+                  avatar: Icon(
+                    Icons.school_outlined,
+                    size: 16,
+                    color: colorScheme.primary,
+                  ),
+                  label: const Text('Academics'),
+                  onPressed: () => onNavigateToTab?.call(2),
                 ),
               ],
             ),
@@ -155,35 +195,166 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAnnouncementsPreviewWidget() {
+  Widget _buildSchedulePreviewWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
-      child: Container(
-        height: 220,
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        alignment: Alignment.center,
-        child: const Text('Announcements Preview Widget (Phase 3B)'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Upcoming Schedule',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildScheduleItem(
+              context,
+              time: 'Today',
+              title: 'AP Course Orientation',
+              subtitle: 'Student Center • 2:00 PM',
+            ),
+            const SizedBox(height: 8),
+            _buildScheduleItem(
+              context,
+              time: 'Tomorrow',
+              title: 'StuCo Weekly Sync',
+              subtitle: 'Room 204 • 3:30 PM',
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSchedulePreviewWidget() {
-    return Card(
-      child: Container(
-        height: 180,
-        padding: const EdgeInsets.all(16.0),
-        alignment: Alignment.center,
-        child: const Text('Schedule & Deadlines Widget (Phase 3B)'),
+  Widget _buildScheduleItem(
+    BuildContext context, {
+    required String time,
+    required String title,
+    required String subtitle,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              time,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildAcademicOverviewWidget() {
+  Widget _buildAcademicOverviewWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
-      child: Container(
-        height: 180,
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        alignment: Alignment.center,
-        child: const Text('Academic Overview Widget (Phase 3B)'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Academic Overview',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.4,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.4),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.menu_book_outlined, color: colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pre-AP & AP Resource Hub',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Text(
+                          'Access subject entry guides and orientation packages.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

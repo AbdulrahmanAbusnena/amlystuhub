@@ -1,7 +1,7 @@
 import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
-import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard.dart';
+import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -56,9 +56,9 @@ class _LoginState extends ConsumerState<Login> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('WELCOME BACK!')));
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const Dashboard()));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
       }
     });
     // UI
