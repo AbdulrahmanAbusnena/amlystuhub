@@ -9,6 +9,8 @@ class AnnouncementFeed extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final announcementsAsync = ref.watch(filteredAnnouncementsProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return announcementsAsync.when(
       data: (announcements) {
@@ -22,22 +24,21 @@ class AnnouncementFeed extends ConsumerWidget {
                   Icon(
                     Icons.campaign_outlined,
                     size: 64,
-                    color: Colors.grey[400],
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No Announcements Yet',
-                    style: TextStyle(
-                      fontSize: 18,
+                    style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Check back later for updates from school admin and StuCo.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -45,11 +46,18 @@ class AnnouncementFeed extends ConsumerWidget {
           );
         }
 
-        return ListView.builder(
-          itemCount: announcements.length,
-          itemBuilder: (context, index) {
-            return AnnouncementCard(announcement: announcements[index]);
-          },
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              itemCount: announcements.length,
+              itemBuilder: (context, index) {
+                return AnnouncementCard(announcement: announcements[index]);
+              },
+            ),
+          ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -58,7 +66,7 @@ class AnnouncementFeed extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'Failed to load announcements: ${error.toString()}',
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(color: colorScheme.error),
           ),
         ),
       ),

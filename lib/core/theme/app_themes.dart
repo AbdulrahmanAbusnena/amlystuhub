@@ -1,180 +1,183 @@
-import 'package:amlystuhub/core/theme/app_theme_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-enum AppThemeKey { lightStandard, darkSlate, midnightBlue, softPink }
+enum AppThemeKey { lightZinc, darkSlate, midnightOled, softTeal }
 
-enum AppFontFamily {
-  standard, // System / Inter
-  handwriting, // Architectural / Casual handwriting font style
-  monospace, // Technical / Structured
-}
+enum AppFontKey { inter, poppins, outfit, roboto }
 
 class AppThemes {
-  static String? _getFontFamily(AppFontFamily font) {
-    switch (font) {
-      case AppFontFamily.handwriting:
-        return 'Caveat'; // Or your designated display font family name
-      case AppFontFamily.monospace:
-        return 'JetBrains Mono';
-      case AppFontFamily.standard:
-        return null; // Uses system default (Roboto / SF Pro)
+  static TextTheme _getFontTextTheme(AppFontKey fontKey, TextTheme baseTheme) {
+    switch (fontKey) {
+      case AppFontKey.poppins:
+        return GoogleFonts.poppinsTextTheme(baseTheme);
+      case AppFontKey.outfit:
+        return GoogleFonts.outfitTextTheme(baseTheme);
+      case AppFontKey.roboto:
+        return GoogleFonts.robotoTextTheme(baseTheme);
+      case AppFontKey.inter:
+      default:
+        return GoogleFonts.interTextTheme(baseTheme);
     }
   }
 
-  static ThemeData getTheme(AppThemeKey key, AppFontFamily fontFamily) {
-    final font = _getFontFamily(fontFamily);
-
-    switch (key) {
-      case AppThemeKey.lightStandard:
-        return ThemeData(
-          useMaterial3: true,
+  static ThemeData buildTheme({
+    required AppThemeKey themeKey,
+    required AppFontKey fontKey,
+  }) {
+    switch (themeKey) {
+      case AppThemeKey.lightZinc:
+        const colorScheme = ColorScheme(
           brightness: Brightness.light,
-          fontFamily: font,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF2563EB),
-            primary: const Color(0xFF2563EB),
-            secondary: const Color(0xFF0EA5E9),
-            tertiary: const Color(0xFF8B5CF6),
-            surface: const Color(0xFFFFFFFF),
-            surfaceContainerHighest: const Color(0xFFF1F5F9),
-            onSurface: const Color(0xFF0F172A),
-          ),
-          scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-          cardTheme: CardThemeData(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-          ),
-          extensions: [
-            AppCustomTheme(
-              badgeBackground: const Color(0xFFDBEAFE),
-              badgeText: const Color(0xFF1E40AF),
-              urgentAccent: const Color(0xFFEF4444),
-              secondaryAccent: const Color(0xFF38BDF8),
-              headlineFont: TextStyle(
-                fontFamily: font,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          primary: Color(0xFF2563EB),
+          onPrimary: Colors.white,
+          secondary: Color(0xFF475569),
+          onSecondary: Colors.white,
+          error: Color(0xFFDC2626),
+          onError: Colors.white,
+          surface: Colors.white,
+          onSurface: Color(0xFF0F172A),
+          surfaceContainerHighest: Color(0xFFF1F5F9),
+          onSurfaceVariant: Color(0xFF475569),
+          outline: Color(0xFFE2E8F0),
+          outlineVariant: Color(0xFFCBD5E1),
         );
+        return _buildBaseTheme(colorScheme, fontKey, const Color(0xFFF8FAFC));
 
       case AppThemeKey.darkSlate:
-        return ThemeData(
-          useMaterial3: true,
+        const colorScheme = ColorScheme(
           brightness: Brightness.dark,
-          fontFamily: font,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF38BDF8),
-            brightness: Brightness.dark,
-            primary: const Color(0xFF38BDF8),
-            secondary: const Color(0xFF818CF8),
-            tertiary: const Color(0xFFF472B6),
-            surface: const Color(0xFF1E293B),
-            surfaceContainerHighest: const Color(0xFF334155),
-            onSurface: const Color(0xFFF8FAFC),
-          ),
-          scaffoldBackgroundColor: const Color(0xFF0F172A),
-          cardTheme: CardThemeData(
-            color: const Color(0xFF1E293B),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFF334155)),
-            ),
-          ),
-          extensions: [
-            AppCustomTheme(
-              badgeBackground: const Color(0xFF0C4A6E),
-              badgeText: const Color(0xFFBAE6FD),
-              urgentAccent: const Color(0xFFF87171),
-              secondaryAccent: const Color(0xFF818CF8),
-              headlineFont: TextStyle(
-                fontFamily: font,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          primary: Color(0xFF38BDF8),
+          onPrimary: Color(0xFF0C4A6E),
+          secondary: Color(0xFF94A3B8),
+          onSecondary: Color(0xFF0F172A),
+          error: Color(0xFFF87171),
+          onError: Color(0xFF450A0A),
+          surface: Color(0xFF0F172A),
+          onSurface: Color(0xFFF8FAFC),
+          surfaceContainerHighest: Color(0xFF1E293B),
+          onSurfaceVariant: Color(0xFF94A3B8),
+          outline: Color(0xFF334155),
+          outlineVariant: Color(0xFF1E293B),
         );
+        return _buildBaseTheme(colorScheme, fontKey, const Color(0xFF020617));
 
-      case AppThemeKey.midnightBlue:
-        return ThemeData(
-          useMaterial3: true,
+      case AppThemeKey.midnightOled:
+        const colorScheme = ColorScheme(
           brightness: Brightness.dark,
-          fontFamily: font,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF6366F1),
-            brightness: Brightness.dark,
-            primary: const Color(0xFF6366F1),
-            secondary: const Color(0xFF06B6D4),
-            tertiary: const Color(0xFFA855F7),
-            surface: const Color(0xFF0B132B),
-            surfaceContainerHighest: const Color(0xFF1C2541),
-            onSurface: const Color(0xFFE0E6ED),
-          ),
-          scaffoldBackgroundColor: const Color(0xFF050814),
-          cardTheme: CardThemeData(
-            color: const Color(0xFF0B132B),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFF1C2541)),
-            ),
-          ),
-          extensions: [
-            AppCustomTheme(
-              badgeBackground: const Color(0xFF1E1B4B),
-              badgeText: const Color(0xFFC7D2FE),
-              urgentAccent: const Color(0xFFFF5A5F),
-              secondaryAccent: const Color(0xFF06B6D4),
-              headlineFont: TextStyle(
-                fontFamily: font,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          primary: Color(0xFF818CF8),
+          onPrimary: Color(0xFF1E1B4B),
+          secondary: Color(0xFF9CA3AF),
+          onSecondary: Color(0xFF111827),
+          error: Color(0xFFF87171),
+          onError: Color(0xFF450A0A),
+          surface: Color(0xFF111827),
+          onSurface: Color(0xFFF9FAFB),
+          surfaceContainerHighest: Color(0xFF1F2937),
+          onSurfaceVariant: Color(0xFF9CA3AF),
+          outline: Color(0xFF374151),
+          outlineVariant: Color(0xFF1F2937),
         );
+        return _buildBaseTheme(colorScheme, fontKey, const Color(0xFF030712));
 
-      case AppThemeKey.softPink:
-        return ThemeData(
-          useMaterial3: true,
+      case AppThemeKey.softTeal:
+        const colorScheme = ColorScheme(
           brightness: Brightness.light,
-          fontFamily: font,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFEC4899),
-            brightness: Brightness.light,
-            primary: const Color(0xFFEC4899),
-            secondary: const Color(0xFFF43F5E),
-            tertiary: const Color(0xFFA855F7),
-            surface: const Color(0xFFFFFFFF),
-            surfaceContainerHighest: const Color(0xFFFCE7F3),
-            onSurface: const Color(0xFF881337),
-          ),
-          scaffoldBackgroundColor: const Color(0xFFFFF1F2),
-          cardTheme: CardThemeData(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFFBCFE8)),
-            ),
-          ),
-          extensions: [
-            AppCustomTheme(
-              badgeBackground: const Color(0xFFFCE7F3),
-              badgeText: const Color(0xFFBE185D),
-              urgentAccent: const Color(0xFFE11D48),
-              secondaryAccent: const Color(0xFFF43F5E),
-              headlineFont: TextStyle(
-                fontFamily: font,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          primary: Color(0xFF0D9488),
+          onPrimary: Colors.white,
+          secondary: Color(0xFF52525B),
+          onSecondary: Colors.white,
+          error: Color(0xFFDC2626),
+          onError: Colors.white,
+          surface: Colors.white,
+          onSurface: Color(0xFF09090B),
+          surfaceContainerHighest: Color(0xFFF4F4F5),
+          onSurfaceVariant: Color(0xFF71717A),
+          outline: Color(0xFFE4E4E7),
+          outlineVariant: Color(0xFFD4D4D8),
         );
+        return _buildBaseTheme(colorScheme, fontKey, const Color(0xFFFAFAFA));
     }
+  }
+
+  static ThemeData _buildBaseTheme(
+    ColorScheme colorScheme,
+    AppFontKey fontKey,
+    Color scaffoldBg,
+  ) {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: colorScheme.brightness,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: scaffoldBg,
+      dialogBackgroundColor: colorScheme.surface,
+    );
+
+    final fontTextTheme = _getFontTextTheme(fontKey, base.textTheme);
+
+    return base.copyWith(
+      textTheme: fontTextTheme.apply(
+        bodyColor: colorScheme.onSurface,
+        displayColor: colorScheme.onSurface,
+      ),
+      cardTheme: CardThemeData(
+        color: colorScheme.surface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: colorScheme.outline, width: 1),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: colorScheme.surfaceContainerHighest,
+        disabledColor: colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.5,
+        ),
+        selectedColor: colorScheme.primary.withValues(alpha: 0.15),
+        secondarySelectedColor: colorScheme.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        labelStyle: fontTextTheme.labelMedium?.copyWith(
+          color: colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
+        secondaryLabelStyle: fontTextTheme.labelMedium?.copyWith(
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        brightness: colorScheme.brightness,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: colorScheme.outline),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+        labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        hintStyle: TextStyle(
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outline,
+        thickness: 1,
+        space: 1,
+      ),
+    );
   }
 }

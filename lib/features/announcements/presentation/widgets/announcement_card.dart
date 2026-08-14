@@ -60,6 +60,8 @@ class AnnouncementCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final currentUserAsync = ref.watch(currentUserModelProvider);
     final user = currentUserAsync.value;
     final userId = user?.uid ?? '';
@@ -67,14 +69,13 @@ class AnnouncementCard extends ConsumerWidget {
     final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top Row: Category Badge & Actions (Pin / Menu)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -82,11 +83,13 @@ class AnnouncementCard extends ConsumerWidget {
                 Row(
                   children: [
                     IconButton(
+                      visualDensity: VisualDensity.compact,
                       icon: Icon(
                         isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        size: 20,
                         color: isPinned
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey,
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
                       ),
                       tooltip: isPinned
                           ? 'Unpin Announcement'
@@ -105,7 +108,11 @@ class AnnouncementCard extends ConsumerWidget {
                     ),
                     if (isPrivilegedUser)
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        icon: Icon(
+                          Icons.more_vert,
+                          size: 20,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                         onSelected: (value) {
                           if (value == 'edit') {
                             _showEditDialog(context);
@@ -118,7 +125,7 @@ class AnnouncementCard extends ConsumerWidget {
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(Icons.edit_outlined, size: 20),
+                                Icon(Icons.edit_outlined, size: 18),
                                 SizedBox(width: 8),
                                 Text('Edit'),
                               ],
@@ -130,14 +137,14 @@ class AnnouncementCard extends ConsumerWidget {
                               children: [
                                 Icon(
                                   Icons.delete_outline,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.error,
+                                  size: 18,
+                                  color: colorScheme.error,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Delete',
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error,
+                                    color: colorScheme.error,
                                   ),
                                 ),
                               ],
@@ -149,14 +156,19 @@ class AnnouncementCard extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
+
+            // Title
             Text(
               announcement.title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+
+            // Body / Markdown Content
             MarkdownBody(
               data: announcement.content,
               onTapLink: (text, href, title) {
@@ -170,20 +182,21 @@ class AnnouncementCard extends ConsumerWidget {
                   );
                 }
               },
-              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                  .copyWith(
-                    p: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
-                      height: 1.4,
-                    ),
-                    a: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+              styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
+                p: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.9),
+                  height: 1.45,
+                ),
+                a: TextStyle(
+                  color: colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
-            if (announcement.targetGrades.isNotEmpty || announcement.apOnly)
+
+            // Scope / Target Chips
+            if (announcement.targetGrades.isNotEmpty || announcement.apOnly) ...[
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
@@ -192,26 +205,37 @@ class AnnouncementCard extends ConsumerWidget {
                     _buildScopeChip(
                       context,
                       'AP Students Only',
-                      Colors.deepPurple,
+                      colorScheme.primary,
                     ),
                   for (final grade in announcement.targetGrades)
-                    _buildScopeChip(context, 'Grade $grade', Colors.blueGrey),
+                    _buildScopeChip(
+                      context,
+                      'Grade $grade',
+                      colorScheme.secondary,
+                    ),
                 ],
               ),
-            if (announcement.targetGrades.isNotEmpty || announcement.apOnly)
               const SizedBox(height: 12),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
+            ],
+
+            Divider(height: 1, color: colorScheme.outlineVariant),
+            const SizedBox(height: 10),
+
+            // Footer (Author, Role, Date)
             Row(
               children: [
-                Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
+                Icon(
+                  Icons.person_outline,
+                  size: 15,
+                  color: colorScheme.onSurfaceVariant,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   announcement.authorName,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -222,7 +246,10 @@ class AnnouncementCard extends ConsumerWidget {
                 const Spacer(),
                 Text(
                   _formatDate(announcement.createdAt),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -233,30 +260,31 @@ class AnnouncementCard extends ConsumerWidget {
   }
 
   Widget _buildCategoryBadge(BuildContext context, String category) {
+    final colorScheme = Theme.of(context).colorScheme;
     Color badgeColor;
+
     switch (category.toLowerCase()) {
-      case 'ap':
-        badgeColor = Colors.deepPurple;
+      case 'academic':
+        badgeColor = colorScheme.primary;
         break;
-      case 'exam':
-        badgeColor = Colors.redAccent;
+      case 'ap':
+        badgeColor = const Color(0xFF8B5CF6); // Distinct Purple
         break;
       case 'stuco':
-        badgeColor = Colors.orangeAccent;
+        badgeColor = const Color(0xFFF59E0B); // Amber / Orange
         break;
-      case 'emergency':
-        badgeColor = Colors.red;
-        break;
+      case 'general':
       default:
-        badgeColor = Colors.blue;
+        badgeColor = colorScheme.secondary;
+        break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: badgeColor, width: 1),
+        color: badgeColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.5), width: 1),
       ),
       child: Text(
         category.toUpperCase(),
@@ -264,6 +292,7 @@ class AnnouncementCard extends ConsumerWidget {
           color: badgeColor,
           fontWeight: FontWeight.bold,
           fontSize: 11,
+          letterSpacing: 0.5,
         ),
       ),
     );
@@ -273,8 +302,9 @@ class AnnouncementCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Text(
         label,
@@ -288,18 +318,19 @@ class AnnouncementCard extends ConsumerWidget {
   }
 
   Widget _buildRoleBadge(BuildContext context, String roleStr) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         roleStr.replaceAll('_', ' ').toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
-          color: Colors.black54,
+          color: colorScheme.onSurfaceVariant,
         ),
       ),
     );
