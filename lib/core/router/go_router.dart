@@ -8,7 +8,7 @@ import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:amlystuhub/features/academics/presentation/screens/resources.dart';
+import 'package:amlystuhub/features/academics/presentation/widgets/resources.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -50,7 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 context.go('/announcements');
                 break;
               case 2:
-                context.go('/resources');
+                context.go('/academics');
                 break;
               default:
                 context.go('/dashboard');
@@ -64,8 +64,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AnnouncementsScreen(),
       ),
       GoRoute(
-        path: '/resources',
-        builder: (context, state) => const ResourcesScreen(),
+        path: '/academics',
+        builder: (context, state) => const AcademicHubScreen(),
       ),
     ],
   );
