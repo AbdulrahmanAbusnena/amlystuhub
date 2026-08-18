@@ -1,47 +1,31 @@
-class AcademicSubBranch {
+enum ResourceType { driveFolder, driveDoc, pdf, externalLink }
+
+class AcademicResource {
   final String id;
   final String title;
-  final String? description;
-  final String? driveUrl;
-  final String? richTextNotes;
-  final List<AcademicSubBranch> subBranches;
+  final String url;
+  final ResourceType type;
 
-  const AcademicSubBranch({
+  const AcademicResource({
     required this.id,
     required this.title,
-    this.description,
-    this.driveUrl,
-    this.richTextNotes,
-    this.subBranches = const [],
+    required this.url,
+    this.type = ResourceType.driveFolder,
   });
 
-  factory AcademicSubBranch.fromMap(Map<String, dynamic> map) {
-    return AcademicSubBranch(
+  factory AcademicResource.fromMap(Map<String, dynamic> map) {
+    return AcademicResource(
       id: map['id'] as String? ?? '',
       title: map['title'] as String? ?? '',
-      description: map['description'] as String?,
-      driveUrl: map['driveUrl'] as String?,
-      richTextNotes: map['richTextNotes'] as String?,
-      subBranches:
-          (map['subBranches'] as List<dynamic>?)
-              ?.map(
-                (x) => AcademicSubBranch.fromMap(
-                  Map<String, dynamic>.from(x as Map),
-                ),
-              )
-              .toList() ??
-          const [],
+      url: map['url'] as String? ?? '',
+      type: ResourceType.values.firstWhere(
+        (e) => e.name == (map['type'] as String? ?? ''),
+        orElse: () => ResourceType.driveFolder,
+      ),
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'driveUrl': driveUrl,
-      'richTextNotes': richTextNotes,
-      'subBranches': subBranches.map((x) => x.toMap()).toList(),
-    };
+    return {'id': id, 'title': title, 'url': url, 'type': type.name};
   }
 }
