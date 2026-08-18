@@ -1,41 +1,37 @@
-import 'package:flutter/material.dart';
-import 'academic_models.dart';
+import 'package:amlystuhub/features/academics/domain/models/course_section_model.dart';
 
-class ApCourseModel {
+class SubjectCourseModel {
   final String id;
   final String title;
   final String code;
   final String description;
   final int colorHex;
-  final String? generalGuideDriveUrl;
-  final List<AcademicSubBranch> branches;
+  final bool isAp;
+  final List<CourseSection> sections;
 
-  const ApCourseModel({
+  const SubjectCourseModel({
     required this.id,
     required this.title,
     required this.code,
     required this.description,
     required this.colorHex,
-    this.generalGuideDriveUrl,
-    this.branches = const [],
+    this.isAp = true,
+    this.sections = const [],
   });
 
-  Color get themeColor => Color(colorHex);
-
-  factory ApCourseModel.fromMap(Map<String, dynamic> map, String docId) {
-    return ApCourseModel(
+  factory SubjectCourseModel.fromMap(Map<String, dynamic> map, String docId) {
+    return SubjectCourseModel(
       id: docId,
       title: map['title'] as String? ?? '',
       code: map['code'] as String? ?? '',
       description: map['description'] as String? ?? '',
       colorHex: map['colorHex'] as int? ?? 0xFF0284C7,
-      generalGuideDriveUrl: map['generalGuideDriveUrl'] as String?,
-      branches:
-          (map['branches'] as List<dynamic>?)
+      isAp: map['isAp'] as bool? ?? true,
+      sections:
+          (map['sections'] as List<dynamic>?)
               ?.map(
-                (x) => AcademicSubBranch.fromMap(
-                  Map<String, dynamic>.from(x as Map),
-                ),
+                (x) =>
+                    CourseSection.fromMap(Map<String, dynamic>.from(x as Map)),
               )
               .toList() ??
           const [],
@@ -48,8 +44,8 @@ class ApCourseModel {
       'code': code,
       'description': description,
       'colorHex': colorHex,
-      'generalGuideDriveUrl': generalGuideDriveUrl,
-      'branches': branches.map((x) => x.toMap()).toList(),
+      'isAp': isAp,
+      'sections': sections.map((x) => x.toMap()).toList(),
     };
   }
 }
