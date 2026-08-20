@@ -41,7 +41,9 @@ class _AcademicSubjectDialogState extends State<AcademicSubjectDialog> {
       text: widget.subject?.masterDriveUrl ?? '',
     );
     _colorController = TextEditingController(
-      text: widget.subject?.colorHex ?? '#1E88E5',
+      text: widget.subject?.colorHex != null
+          ? '#${widget.subject!.colorHex.toRadixString(16).toUpperCase().padLeft(6, '0')}'
+          : '#1E88E5',
     );
   }
 
@@ -126,10 +128,12 @@ class _AcademicSubjectDialogState extends State<AcademicSubjectDialog> {
                 description: _descController.text.trim(),
                 category: _categoryController.text.trim(),
                 programType: widget.currentProgram,
-                masterDriveUrl: _driveUrlController.text.trim().isEmpty
+                driveFolderUrl: _driveUrlController.text.trim().isEmpty
                     ? null
                     : _driveUrlController.text.trim(),
-                colorHex: _colorController.text.trim(),
+                colorHex: int.parse(
+                  _colorController.text.trim().replaceFirst('#', '0x'),
+                ),
               );
               widget.onSave(newSubject);
               Navigator.pop(context);
