@@ -1,57 +1,115 @@
-enum ResourceType {
-  richText,
-  pdf,
-  driveFolder,
-  externalLink;
+enum ProgramType { ap, generalHS }
 
-  static ResourceType fromString(String? value) {
-    return ResourceType.values.firstWhere(
-      (e) => e.name == value,
-      orElse: () => ResourceType.richText,
+enum ResourceCategory { overview, guides, practice, videos }
+
+enum ResourceType { pdf, driveFolder, youtube, externalLink }
+
+class AcademicSubjectModel {
+  final String id;
+  final String code;
+  final String title;
+  final String description;
+  final ProgramType programType;
+  final String category; // e.g., 'STEM', 'Humanities'
+  final int colorHex;
+  final String? driveFolderUrl;
+
+  const AcademicSubjectModel({
+    required this.id,
+    required this.code,
+    required this.title,
+    required this.description,
+    required this.programType,
+    required this.category,
+    required this.colorHex,
+    this.driveFolderUrl,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'code': code,
+      'title': title,
+      'description': description,
+      'programType': programType.name,
+      'category': category,
+      'colorHex': colorHex,
+      'driveFolderUrl': driveFolderUrl,
+    };
+  }
+
+  factory AcademicSubjectModel.fromMap(Map<String, dynamic> map, String docId) {
+    return AcademicSubjectModel(
+      id: docId,
+      code: map['code'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      programType: ProgramType.values.firstWhere(
+        (e) => e.name == map['programType'],
+        orElse: () => ProgramType.ap,
+      ),
+      category: map['category'] ?? 'General',
+      colorHex: map['colorHex'] ?? 0xFF0284C7,
+      driveFolderUrl: map['driveFolderUrl'],
     );
   }
 }
 
-class AcademicResource {
+class AcademicResourceModel {
   final String id;
+  final String? subjectId; // null if it belongs to General AP Guide
+  final bool isGeneralAp;
   final String title;
-  final String? description;
-  final String? url;
-  final String? richTextContent; // For in-app native markdown/rich text reader
-  final ResourceType type;
-  final bool isFeatured;
+  final String description;
+  final ResourceCategory tabCategory;
+  final ResourceType resourceType;
+  final String url;
+  final String? unitTag; // e.g., 'Unit 1', 'Exam Prep'
 
-  const AcademicResource({
+  const AcademicResourceModel({
     required this.id,
+    this.subjectId,
+    required this.isGeneralAp,
     required this.title,
-    this.description,
-    this.url,
-    this.richTextContent,
-    required this.type,
-    this.isFeatured = false,
+    required this.description,
+    required this.tabCategory,
+    required this.resourceType,
+    required this.url,
+    this.unitTag,
   });
-
-  factory AcademicResource.fromMap(Map<String, dynamic> map) {
-    return AcademicResource(
-      id: map['id'] as String? ?? '',
-      title: map['title'] as String? ?? '',
-      description: map['description'] as String?,
-      url: map['url'] as String?,
-      richTextContent: map['richTextContent'] as String?,
-      type: ResourceType.fromString(map['type'] as String?),
-      isFeatured: map['isFeatured'] as bool? ?? false,
-    );
-  }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'subjectId': subjectId,
+      'isGeneralAp': isGeneralAp,
       'title': title,
       'description': description,
+      'tabCategory': tabCategory.name,
+      'resourceType': resourceType.name,
       'url': url,
-      'richTextContent': richTextContent,
-      'type': type.name,
-      'isFeatured': isFeatured,
+      'unitTag': unitTag,
     };
+  }
+
+  factory AcademicResourceModel.fromMap(
+    Map<String, dynamic> map,
+    String docId,
+  ) {
+    return AcademicResourceModel(
+      id: docId,
+      subjectId: map['subjectId'],
+      isGeneralAp: map['isGeneralAp'] ?? false,
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      tabCategory: ResourceCategory.values.firstWhere(
+        (e) => e.name == map['tabCategory'],
+        orElse: () => ResourceCategory.guides,
+      ),
+      resourceType: ResourceType.values.firstWhere(
+        (e) => e.name == map['resourceType'],
+        orElse: () => ResourceType.externalLink,
+      ),
+      url: map['url'] ?? '',
+      unitTag: map['unitTag'],
+    );
   }
 }

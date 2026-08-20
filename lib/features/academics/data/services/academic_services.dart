@@ -1,56 +1,79 @@
-import 'package:amlystuhub/features/academics/domain/models/course_model.dart';
-import 'package:amlystuhub/features/academics/domain/models/course_section_model.dart';
-import 'package:amlystuhub/features/academics/domain/models/orientation_model.dart';
+import 'package:amlystuhub/features/academics/domain/models/academic_models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AcademicRemoteService {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  AcademicRemoteService(this._firestore);
+  CollectionReference<Map<String, dynamic>> get _subjectsRef =>
+      _firestore.collection('academic_subjects');
 
-  /// Streams all courses from Firestore
-  Stream<List<SubjectCourseModel>> getApCoursesStream() {
-    return _firestore.collection('ap_courses').snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => SubjectCourseModel.fromMap(doc.data(), doc.id))
-          .toList();
-    });
-  }
+  CollectionReference<Map<String, dynamic>> get _resourcesRef =>
+      _firestore.collection('academic_resources');
 
-  /// Streams all orientation timeline events ordered by index
-  Stream<List<OrientationEventModel>> getOrientationScheduleStream() {
-    return _firestore
-        .collection('orientation_schedule')
-        .orderBy('orderIndex', descending: false)
+  // Streams
+  Stream<List<AcademicSubjectModel>> getSubjectsByProgram(
+    ProgramType programType,
+  ) {
+    return _subjectsRef
+        .where('programType', isEqualTo: programType.name)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => OrientationEventModel.fromMap(doc.data(), doc.id))
-              .toList();
-        });
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => AcademicSubjectModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
-  /// Updates the entire list of sections for a specific course
-  Future<void> updateCourseSections(
-    String courseId,
-    List<CourseSection> sections,
+  Stream<List<AcademicResourceModel>> getGeneralApResources() {
+    return _resourcesRef
+        .where('isGeneralAp', isEqualTo: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => AcademicResourceModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  Stream<List<AcademicResourceModel>> getSubjectResources(String subjectId) {
+    return _resourcesRef
+        .where('subjectId', isEqualTo: subjectId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => AcademicResourceModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  // Mutations
+  Future<void> addSubject(AcademicSubjectModel subject) async {
+    await _subjectsRef.add(subject.toMap());
+  }
+
+  Future<void> updateSubject(
+    String subjectId,
+    AcademicSubjectModel subject,
   ) async {
-    final rawSections = sections.map((s) => s.toMap()).toList();
-    await _firestore.collection('ap_courses').doc(courseId).update({
-      'sections': rawSections,
-    });
+    await _subjectsRef.doc(subjectId).update(subject.toMap());
   }
 
-  /// Adds a single course document
-  Future<void> addCourse(SubjectCourseModel course) async {
-    await _firestore.collection('ap_courses').add(course.toMap());
+  Future<void> deleteSubject(String subjectId) async {
+    await _subjectsRef.doc(subjectId).delete();
   }
 
-  /// Updates top-level course details (title, code, description, color)
-  Future<void> updateCourseDetails(
-    String courseId,
-    Map<String, dynamic> data,
+  Future<void> addResource(AcademicResourceModel resource) async {
+    await _resourcesRef.add(resource.toMap());
+  }
+
+  Future<void> updateResource(
+    String resourceId,
+    AcademicResourceModel resource,
   ) async {
-    await _firestore.collection('ap_courses').doc(courseId).update(data);
+    await _resourcesRef.doc(resourceId).update(resource.toMap());
+  }
+
+  Future<void> deleteResource(String resourceId) async {
+    await _resourcesRef.doc(resourceId).delete();
   }
 }

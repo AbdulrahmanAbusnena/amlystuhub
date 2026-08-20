@@ -1,120 +1,98 @@
-import 'dart:async';
-
 import 'package:amlystuhub/features/academics/data/services/academic_services.dart';
 import 'package:amlystuhub/features/academics/domain/models/academic_models.dart';
+import 'package:amlystuhub/features/academics/domain/models/course_model.dart';
 import 'package:amlystuhub/features/academics/domain/models/course_section_model.dart';
 import 'package:amlystuhub/features/academics/presentation/state/academic_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-final academicRemoteServiceProvider = Provider<AcademicRemoteService>((ref) {
-  return AcademicRemoteService(FirebaseFirestore.instance);
+final academicServiceProvider = Provider((ref) => AcademicRemoteService());
+
+// Stream Provider for the UI grid
+final coursesStreamProvider = StreamProvider<List<SubjectCourseModel>>((ref) {
+  return ref.watch(academicServiceProvider).getCourses();
 });
 
-final academicControllerProvider =
-    StateNotifierProvider<AcademicController, AcademicState>((ref) {
-      final service = ref.watch(academicRemoteServiceProvider);
-      return AcademicController(service);
-    });
+class AcademicController extends StateNotifier<AsyncValue<void>> {
+  final AcademicRemoteService _service;
 
-class AcademicController extends StateNotifier<AcademicState> {
-  final AcademicRemoteService _remoteService;
-  StreamSubscription? _coursesSub;
-  StreamSubscription? _orientationSub;
+  AcademicController(this._service) : super(const AsyncValue.data(null));
 
-  AcademicController(this._remoteService) : super(const AcademicState()) {
-    _init();
+  // 1. Admin creates a new course card from the main screen
+  Future<bool> createCourse({
+    required String code,
+    required String title,
+    required String description,
+    required bool isAp,
+    required String category,
+  }) async {
+    state = const AsyncValue.loading();
+    try {
+      final course = SubjectCourseModel(
+        id: '',
+        code: code,
+        title: title,
+        description: description,
+        isAp: isAp,
+        colorHex: 0xFF0284C7,
+        sections: const [],
+      );
+      await _service.addCourse(course);
+      state = const AsyncValue.data(null);
+      return true;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return false;
+    }
   }
 
-  void _init() {
-    _coursesSub = _remoteService.getApCoursesStream().listen(
-      (courses) {
-        state = state.copyWith(courses: AsyncValue.data(courses));
-      },
-      onError: (err, st) {
-        state = state.copyWith(courses: AsyncValue.error(err, st));
-      },
-    );
-
-    _orientationSub = _remoteService.getOrientationScheduleStream().listen(
-      (events) {
-        state = state.copyWith(orientationEvents: AsyncValue.data(events));
-      },
-      onError: (err, st) {
-        state = state.copyWith(orientationEvents: AsyncValue.error(err, st));
-      },
-    );
-  }
-
-  /// Adds a new section (e.g., "Guides & Syllabus") to a course
-  Future<bool> addSectionToCourse({
+  // 2. Admin adds a new unit/section inside a specific course detail page
+  Future<bool> createSection({
     required String courseId,
     required String sectionTitle,
   }) async {
     try {
-      final currentCourses = state.courses.value ?? [];
-      final course = currentCourses.firstWhere((c) => c.id == courseId);
-
-      final newSection = CourseSection(
+      final section = CourseSection(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: sectionTitle,
-        orderIndex: course.sections.length,
         resources: const [],
       );
-
-      final updatedSections = [...course.sections, newSection];
-      await _remoteService.updateCourseSections(courseId, updatedSections);
+      await _service.addSection(courseId, section);
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  /// Adds a resource (Drive link, PDF, external site) to a specific section inside a course
-  Future<bool> addResourceToSection({
+  // 3. Admin adds a Drive link or PDF to a section
+  Future<bool> createResource({
     required String courseId,
     required String sectionId,
     required String resourceTitle,
     required String url,
     required ResourceType type,
-    String? description,
   }) async {
     try {
-      final currentCourses = state.courses.value ?? [];
-      final course = currentCourses.firstWhere((c) => c.id == courseId);
-
-      final newResource = AcademicResource(
+      final resource = AcademicResource(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: resourceTitle,
-        description: description,
         url: url,
         type: type,
       );
-
-      final updatedSections = course.sections.map((section) {
-        if (section.id == sectionId) {
-          return CourseSection(
-            id: section.id,
-            title: section.title,
-            orderIndex: section.orderIndex,
-            resources: [...section.resources, newResource],
-          );
-        }
-        return section;
-      }).toList();
-
-      await _remoteService.updateCourseSections(courseId, updatedSections);
+      await _service.addResource(
+        courseId: courseId,
+        sectionId: sectionId,
+        resource: resource,
+      );
       return true;
     } catch (e) {
       return false;
     }
   }
-
-  @override
-  void dispose() {
-    _coursesSub?.cancel();
-    _orientationSub?.cancel();
-    super.dispose();
-  }
 }
+
+final academicControllerProvider =
+    StateNotifierProvider<AcademicController, AsyncValue<void>>((ref) {
+      return AcademicController(ref.watch(academicServiceProvider));
+    });
