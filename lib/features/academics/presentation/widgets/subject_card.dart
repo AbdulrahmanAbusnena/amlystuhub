@@ -1,35 +1,45 @@
-import 'package:amlystuhub/features/academics/domain/models/course_model.dart';
+import 'package:amlystuhub/features/academics/domain/models/academic_models.dart';
 import 'package:flutter/material.dart';
 
 class SubjectCard extends StatelessWidget {
-  final SubjectCourseModel course;
+  final AcademicSubjectModel subject;
+  final bool isStuCoAdmin;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  const SubjectCard({super.key, required this.course, required this.onTap});
+  const SubjectCard({
+    super.key,
+    required this.subject,
+    required this.isStuCoAdmin,
+    required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  Color _parseColor(String hexColor) {
+    try {
+      final hex = hexColor.replaceAll('#', '');
+      return Color(int.parse('FF$hex', radix: 16));
+    } catch (_) {
+      return Colors.blueAccent;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final cardColor = _parseColor(subject.colorHex as String);
 
-    // Use surface colors instead of bright full-card background fills to keep text readable
     return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
-      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -40,75 +50,53 @@ class SubjectCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8),
+                      color: cardColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      course.code,
+                      subject.code,
                       style: TextStyle(
-                        color: colorScheme.onPrimaryContainer,
+                        color: cardColor,
                         fontWeight: FontWeight.bold,
-                        fontSize: 11,
+                        fontSize: 12,
                       ),
                     ),
                   ),
-                  if (course.isAp)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.tertiaryContainer,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'AP',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onTertiaryContainer,
+                  if (isStuCoAdmin)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, size: 18),
+                      padding: EdgeInsets.zero,
+                      onSelected: (val) {
+                        if (val == 'edit') onEdit();
+                        if (val == 'delete') onDelete();
+                      },
+                      itemBuilder: (ctx) => [
+                        const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete'),
                         ),
-                      ),
+                      ],
                     ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const Spacer(),
               Text(
-                course.title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: colorScheme.onSurface,
-                  height: 1.2,
-                ),
+                subject.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                course.description,
+                subject.category,
                 style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 11,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.folder_outlined,
-                    size: 14,
-                    color: colorScheme.outline,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${course.sections.length} Sections',
-                    style: TextStyle(fontSize: 11, color: colorScheme.outline),
-                  ),
-                ],
               ),
             ],
           ),

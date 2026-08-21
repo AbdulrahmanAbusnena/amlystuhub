@@ -1,23 +1,33 @@
-import 'package:amlystuhub/features/academics/domain/models/course_model.dart';
-import 'package:amlystuhub/features/academics/domain/models/orientation_model.dart';
+import 'package:amlystuhub/features/academics/domain/models/academic_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AcademicState {
-  final AsyncValue<List<SubjectCourseModel>> courses;
-  final AsyncValue<List<OrientationEventModel>> orientationEvents;
+  final AsyncValue<void> operationStatus;
+  final String searchQuery;
+  final ProgramType selectedProgram;
+  final ResourceCategory? selectedCategoryFilter;
 
   const AcademicState({
-    this.courses = const AsyncValue.loading(),
-    this.orientationEvents = const AsyncValue.loading(),
+    this.operationStatus = const AsyncValue.data(null),
+    this.searchQuery = '',
+    this.selectedProgram = ProgramType.ap,
+    this.selectedCategoryFilter,
   });
 
+  bool get isLoading => operationStatus.isLoading;
+
   AcademicState copyWith({
-    AsyncValue<List<SubjectCourseModel>>? courses,
-    AsyncValue<List<OrientationEventModel>>? orientationEvents,
+    AsyncValue<void>? operationStatus,
+    String? searchQuery,
+    ProgramType? selectedProgram,
+    ResourceCategory? selectedCategoryFilter,
   }) {
     return AcademicState(
-      courses: courses ?? this.courses,
-      orientationEvents: orientationEvents ?? this.orientationEvents,
+      operationStatus: operationStatus ?? this.operationStatus,
+      searchQuery: searchQuery ?? this.searchQuery,
+      selectedProgram: selectedProgram ?? this.selectedProgram,
+      selectedCategoryFilter:
+          selectedCategoryFilter ?? this.selectedCategoryFilter,
     );
   }
 }
