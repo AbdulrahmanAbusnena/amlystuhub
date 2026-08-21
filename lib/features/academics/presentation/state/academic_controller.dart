@@ -33,7 +33,10 @@ class AcademicsController extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  Future<void> createCourse(AcademicCourseModel course) async {
+  Future<void> createCourse(
+    AcademicCourseModel course, {
+    required String title,
+  }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
       () => ref.read(academicsServiceProvider).createCourse(course),

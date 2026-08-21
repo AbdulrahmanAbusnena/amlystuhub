@@ -1,3 +1,4 @@
+import 'package:amlystuhub/features/academics/presentation/screens/academic_screen.dart';
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcemen_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.dart';
@@ -7,8 +8,6 @@ import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import 'package:amlystuhub/features/academics/presentation/screens/academic_hub.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
