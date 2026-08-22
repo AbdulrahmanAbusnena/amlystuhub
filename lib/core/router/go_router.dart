@@ -1,4 +1,4 @@
-import 'package:amlystuhub/features/academics/presentation/screens/academic_screen.dart';
+import 'package:amlystuhub/features/academics/presentation/screens/academic_hub.dart';
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcemen_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.dart';
