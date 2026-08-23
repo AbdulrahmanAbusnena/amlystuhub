@@ -23,35 +23,13 @@ class DashboardScreen extends ConsumerWidget {
     final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.accessibility_new_outlined),
-            tooltip: 'Accessibility Settings',
-            onPressed: () {
-              // Quick route/sheet for Accessibility toggles
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Profile Settings',
-            onPressed: () => onNavigateToTab?.call(4), // Profile Index
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth >= 900;
 
           return Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
+              constraints: const BoxConstraints(maxWidth: 1000),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

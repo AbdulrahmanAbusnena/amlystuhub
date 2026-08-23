@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum ResourceType { link, pdf, googleDrive, video }
 
 class ResourceModel {
@@ -82,8 +84,10 @@ class CourseModel {
   final String title;
   final String code;
   final String description;
-  final String category; // "AP", "General", "Advisory"
+  final String category;
+  final String bannerColorHex;
   final int order;
+
   final DateTime createdAt;
 
   CourseModel({
@@ -92,28 +96,47 @@ class CourseModel {
     required this.code,
     required this.description,
     required this.category,
-    this.order = 0,
+    this.bannerColorHex = '0FF093FB',
+    required this.order,
+
     required this.createdAt,
   });
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'code': code,
-    'description': description,
-    'category': category,
-    'order': order,
-    'createdAt': createdAt.toIso8601String(),
-  };
+  factory CourseModel.fromJson(Map<String, dynamic> json, String id) {
+    return CourseModel(
+      id: id,
+      title: json['title'] as String? ?? '',
+      code: json['code'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      category: json['category'] as String? ?? 'AP',
+      bannerColorHex: json['bannerColorHex'] ?? '0FF093FB',
+      order: (json['order'] as num?)?.toInt() ?? 0,
 
-  factory CourseModel.fromJson(Map<String, dynamic> json, String docId) =>
-      CourseModel(
-        id: docId,
-        title: json['title'] ?? '',
-        code: json['code'] ?? '',
-        description: json['description'] ?? '',
-        category: json['category'] ?? 'AP',
-        order: json['order'] ?? 0,
-        createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      );
+      // Uses the safe parser to catch Timestamps, Strings, or nulls
+      createdAt: _parseDateTime(json['createdAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'code': code,
+      'description': description,
+      'category': category,
+      'bannerColorHex': bannerColorHex,
+      'order': order,
+
+      'createdAt': Timestamp.fromDate(
+        createdAt,
+      ), // Always save as Timestamp to Firestore
+    };
+  }
+}
+
+DateTime _parseDateTime(dynamic value) {
+  if (value == null) return DateTime.now();
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.tryParse(value) ?? DateTime.now();
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+  return DateTime.now();
 }
