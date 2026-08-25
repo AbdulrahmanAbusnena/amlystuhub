@@ -1,5 +1,4 @@
 import 'package:amlystuhub/features/academics/presentation/screens/academic_hub.dart';
-import 'package:amlystuhub/features/announcements/presentation/widgets/announcemen_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
@@ -8,6 +7,9 @@ import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../features/advocacy/presentation/screens/advocacty_screen.dart';
+import '../../features/announcements/presentation/widgets/announcemen_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -21,12 +23,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/signup' ||
           state.matchedLocation == '/landing';
 
-      // Unauthenticated users redirect to landing
       if (user == null) {
         return isAuthPage ? null : '/landing';
       }
 
-      // Authenticated users on auth pages redirect to dashboard
       if (isAuthPage) {
         return '/dashboard';
       }
@@ -51,6 +51,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               case 2:
                 context.go('/academics');
                 break;
+              case 3:
+                context.go('/advocacy');
+                break;
               default:
                 context.go('/dashboard');
                 break;
@@ -65,6 +68,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/academics',
         builder: (context, state) => const AcademicHubScreen(),
+      ),
+      GoRoute(
+        path: '/advocacy',
+        builder: (context, state) => const AdvocacyHubScreen(),
       ),
     ],
   );

@@ -18,6 +18,12 @@ final activeSurveysStreamProvider = StreamProvider<List<SurveyModel>>((ref) {
   return repo.watchActiveSurveys();
 });
 
+/// Leadership view: Fetches all surveys (active and inactive)
+final allSurveysStreamProvider = StreamProvider<List<SurveyModel>>((ref) {
+  final repo = ref.watch(advocacyRepositoryProvider);
+  return repo.watchAllSurveys();
+});
+
 /// Fetches tickets submitted by the currently authenticated student
 final userTicketsStreamProvider = StreamProvider<List<TicketModel>>((ref) {
   final repo = ref.watch(advocacyRepositoryProvider);
@@ -48,6 +54,7 @@ class TicketSubmissionController extends AsyncNotifier<void> {
     required String subject,
     required String description,
     required bool isDiscreet,
+    required bool apOnly,
   }) async {
     final user = ref.read(currentUserModelProvider).value;
     if (user == null) {
@@ -69,6 +76,7 @@ class TicketSubmissionController extends AsyncNotifier<void> {
       subject: subject.trim(),
       description: description.trim(),
       isDiscreet: isDiscreet,
+      apOnly: apOnly,
       status: TicketStatus.submitted,
       createdAt: DateTime.now(),
     );
@@ -76,6 +84,17 @@ class TicketSubmissionController extends AsyncNotifier<void> {
     state = await AsyncValue.guard(() async {
       final repo = ref.read(advocacyRepositoryProvider);
       await repo.submitTicket(newTicket);
+    });
+
+    return !state.hasError;
+  }
+
+  Future<bool> editTicket(TicketModel ticket) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(advocacyRepositoryProvider);
+      await repo.updateTicket(ticket);
     });
 
     return !state.hasError;
@@ -106,6 +125,17 @@ class TicketManagementController extends AsyncNotifier<void> {
 
     return !state.hasError;
   }
+
+  Future<bool> deleteTicket(String ticketId) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(advocacyRepositoryProvider);
+      await repo.deleteTicket(ticketId);
+    });
+
+    return !state.hasError;
+  }
 }
 
 final ticketManagementControllerProvider =
@@ -123,6 +153,7 @@ class SurveyManagementController extends AsyncNotifier<void> {
     required String description,
     required String googleFormUrl,
     required String targetGrade,
+    required bool apOnly,
   }) async {
     state = const AsyncLoading();
 
@@ -132,6 +163,7 @@ class SurveyManagementController extends AsyncNotifier<void> {
       description: description.trim(),
       googleFormUrl: googleFormUrl.trim(),
       targetGrade: targetGrade,
+      apOnly: apOnly,
       isActive: true,
       createdAt: DateTime.now(),
     );
@@ -144,12 +176,34 @@ class SurveyManagementController extends AsyncNotifier<void> {
     return !state.hasError;
   }
 
+  Future<bool> editSurvey(SurveyModel survey) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(advocacyRepositoryProvider);
+      await repo.updateSurvey(survey);
+    });
+
+    return !state.hasError;
+  }
+
   Future<bool> toggleSurveyActiveState(String surveyId, bool isActive) async {
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
       final repo = ref.read(advocacyRepositoryProvider);
       await repo.toggleSurveyStatus(surveyId, isActive);
+    });
+
+    return !state.hasError;
+  }
+
+  Future<bool> deleteSurvey(String surveyId) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(advocacyRepositoryProvider);
+      await repo.deleteSurvey(surveyId);
     });
 
     return !state.hasError;
