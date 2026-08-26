@@ -89,14 +89,21 @@ class TicketSubmissionController extends AsyncNotifier<void> {
     return !state.hasError;
   }
 
-  Future<bool> editTicket(TicketModel ticket) async {
+  Future<bool> editTicket(TicketModel updatedTicket) async {
     state = const AsyncLoading();
-
     state = await AsyncValue.guard(() async {
       final repo = ref.read(advocacyRepositoryProvider);
-      await repo.updateTicket(ticket);
+      await repo.updateTicket(updatedTicket);
     });
+    return !state.hasError;
+  }
 
+  Future<bool> deleteTicket(String ticketId) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(advocacyRepositoryProvider);
+      await repo.deleteTicket(ticketId);
+    });
     return !state.hasError;
   }
 }

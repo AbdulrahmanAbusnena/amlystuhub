@@ -143,9 +143,7 @@ class AnnouncementCard extends ConsumerWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Delete',
-                                  style: TextStyle(
-                                    color: colorScheme.error,
-                                  ),
+                                  style: TextStyle(color: colorScheme.error),
                                 ),
                               ],
                             ),
@@ -196,7 +194,8 @@ class AnnouncementCard extends ConsumerWidget {
             const SizedBox(height: 12),
 
             // Scope / Target Chips
-            if (announcement.targetGrades.isNotEmpty || announcement.apOnly) ...[
+            if (announcement.targetGrades.isNotEmpty ||
+                announcement.apOnly) ...[
               Wrap(
                 spacing: 6,
                 runSpacing: 4,

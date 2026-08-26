@@ -1,57 +1,91 @@
+import 'package:amlystuhub/features/advocacy/presentation/widgets/ticket_dialog.dart';
 import 'package:flutter/material.dart';
 import '../../domain/models/advocacy_models.dart';
 
 class TicketCard extends StatelessWidget {
   final TicketModel ticket;
+  final bool isLeadershipView;
 
-  const TicketCard({super.key, required this.ticket});
+  const TicketCard({
+    super.key,
+    required this.ticket,
+    this.isLeadershipView = false,
+  });
+
+  void _showTicketDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => TicketDetailDialog(
+        ticket: ticket,
+        isLeadershipView: isLeadershipView,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showTicketDetails(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TicketStatusBadge(status: ticket.status),
-              const Spacer(),
-              if (ticket.isDiscreet)
-                Tooltip(
-                  message: 'Submitted discreetly',
-                  child: Icon(
-                    Icons.security,
-                    size: 16,
-                    color: colorScheme.outline,
-                  ),
+              Row(
+                children: [
+                  TicketStatusBadge(status: ticket.status),
+                  const Spacer(),
+                  if (ticket.apOnly) ...[
+                    Tooltip(
+                      message: 'AP-Specific Concern',
+                      child: Icon(
+                        Icons.school,
+                        size: 16,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  if (ticket.isDiscreet)
+                    Tooltip(
+                      message: 'Submitted discreetly',
+                      child: Icon(
+                        Icons.security,
+                        size: 16,
+                        color: colorScheme.outline,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                ticket.subject,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                ticket.category.displayName,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            ticket.subject,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            ticket.category.displayName,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -79,9 +113,6 @@ class TicketStatusBadge extends StatelessWidget {
         fg = Colors.amber.shade900;
         break;
       case TicketStatus.inProgress:
-        bg = Colors.purple.shade50;
-        fg = Colors.purple.shade800;
-        break;
       case TicketStatus.resolved:
         bg = Colors.green.shade50;
         fg = Colors.green.shade800;

@@ -4,66 +4,155 @@ import '../../domain/models/advocacy_models.dart';
 import '../state/advocacy_controller.dart';
 
 class SubmitTicketDialog extends ConsumerStatefulWidget {
-  const SubmitTicketDialog({super.key});
+  final TicketModel? ticketToEdit;
+
+  const SubmitTicketDialog({super.key, this.ticketToEdit});
 
   @override
   ConsumerState<SubmitTicketDialog> createState() => _SubmitTicketDialogState();
 }
 
 class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
-  final _subjectController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late final TextEditingController _subjectController;
+  late final TextEditingController _descriptionController;
+  late final FocusNode _descriptionFocusNode;
 
-  TicketCategory _selectedCategory = TicketCategory.academics;
-  bool _isDiscreet = false;
-  bool _apOnly = false;
+  late TicketCategory _selectedCategory;
+  late bool _isDiscreet;
+  late bool _apOnly;
   bool _isLoading = false;
 
+  // Window sizing constraints matching Announcement dialog
   double _dialogWidth = 580.0;
-  double _dialogHeight = 620.0;
+  double _dialogHeight = 640.0;
 
   static const double _minWidth = 450.0;
   static const double _maxWidth = 900.0;
   static const double _minHeight = 500.0;
   static const double _maxHeight = 800.0;
 
+  bool get _isEditing => widget.ticketToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final edit = widget.ticketToEdit;
+    _subjectController = TextEditingController(text: edit?.subject ?? '');
+    _descriptionController = TextEditingController(
+      text: edit?.description ?? '',
+    );
+    _descriptionFocusNode = FocusNode();
+    _selectedCategory = edit?.category ?? TicketCategory.generalAdvice;
+    _isDiscreet = edit?.isDiscreet ?? false;
+    _apOnly = edit?.apOnly ?? false;
+  }
+
   @override
   void dispose() {
     _subjectController.dispose();
     _descriptionController.dispose();
+    _descriptionFocusNode.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (_subjectController.text.trim().isEmpty ||
-        _descriptionController.text.trim().isEmpty)
+  void _applySelectionFormat(String prefix, String suffix) {
+    final text = _descriptionController.text;
+    final selection = _descriptionController.selection;
+
+    if (!selection.isValid) {
+      _descriptionController.text = '$text$prefix$suffix';
       return;
+    }
+
+    if (selection.isCollapsed) {
+      final pos = selection.start;
+      final newText = text.replaceRange(pos, pos, '$prefix$suffix');
+      _descriptionController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: pos + prefix.length),
+      );
+    } else {
+      final start = selection.start;
+      final end = selection.end;
+      final selectedText = text.substring(start, end);
+      final newText = text.replaceRange(
+        start,
+        end,
+        '$prefix$selectedText$suffix',
+      );
+      _descriptionController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection(
+          baseOffset: start + prefix.length,
+          extentOffset: start + prefix.length + selectedText.length,
+        ),
+      );
+    }
+    _descriptionFocusNode.requestFocus();
+  }
+
+  void _applyLinePrefix(String prefix) {
+    final text = _descriptionController.text;
+    final selection = _descriptionController.selection;
+    final cursorOffset = selection.isValid ? selection.start : text.length;
+
+    final lineStart = text.lastIndexOf('\n', cursorOffset - 1) + 1;
+    final newText = text.replaceRange(lineStart, lineStart, prefix);
+
+    _descriptionController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: cursorOffset + prefix.length),
+    );
+    _descriptionFocusNode.requestFocus();
+  }
+
+  Future<void> _handleSubmit() async {
+    final subject = _subjectController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (subject.isEmpty || description.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a subject and description.'),
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
-    final success = await ref
-        .read(ticketSubmissionControllerProvider.notifier)
-        .submitTicket(
-          category: _selectedCategory,
-          subject: _subjectController.text,
-          description: _descriptionController.text,
-          isDiscreet: _isDiscreet,
-          apOnly: _apOnly,
-        );
+    final controller = ref.read(ticketSubmissionControllerProvider.notifier);
+    final bool success;
+
+    if (_isEditing) {
+      final updated = widget.ticketToEdit!.copyWith(
+        subject: subject,
+        description: description,
+        category: _selectedCategory,
+        isDiscreet: _isDiscreet,
+        apOnly: _apOnly,
+      );
+      success = await controller.editTicket(updated);
+    } else {
+      success = await controller.submitTicket(
+        category: _selectedCategory,
+        subject: subject,
+        description: description,
+        isDiscreet: _isDiscreet,
+        apOnly: _apOnly,
+      );
+    }
 
     if (mounted) {
       setState(() => _isLoading = false);
       if (success) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final controllerState = ref.watch(ticketSubmissionControllerProvider);
-    final isSubmitting = _isLoading || controllerState.isLoading;
-
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(24),
@@ -92,7 +181,7 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SelectableText(
-                        'Submit a Concern or Report',
+                        _isEditing ? 'Edit Ticket' : 'Submit Advocacy Ticket',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -101,7 +190,7 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
                         cursor: SystemMouseCursors.click,
                         child: IconButton(
                           icon: const Icon(Icons.close, size: 20),
-                          onPressed: () => Navigator.of(context).pop(),
+                          onPressed: () => Navigator.of(context).pop(false),
                         ),
                       ),
                     ],
@@ -112,14 +201,6 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TextField(
-                            controller: _subjectController,
-                            decoration: const InputDecoration(
-                              labelText: 'Subject / Summary',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
                           DropdownButtonFormField<TicketCategory>(
                             value: _selectedCategory,
                             decoration: const InputDecoration(
@@ -133,40 +214,110 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
                               );
                             }).toList(),
                             onChanged: (val) {
-                              if (val != null)
+                              if (val != null && mounted) {
                                 setState(() => _selectedCategory = val);
+                              }
                             },
                           ),
                           const SizedBox(height: 16),
                           TextField(
-                            controller: _descriptionController,
-                            maxLines: 5,
+                            controller: _subjectController,
+                            enableInteractiveSelection: true,
                             decoration: const InputDecoration(
-                              labelText: 'Details / Report Description',
+                              labelText: 'Subject',
                               border: OutlineInputBorder(),
-                              alignLabelWithHint: true,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(7),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _buildFormatButton(
+                                        icon: Icons.format_bold,
+                                        tooltip: 'Bold',
+                                        onPressed: () =>
+                                            _applySelectionFormat('**', '**'),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_italic,
+                                        tooltip: 'Italic',
+                                        onPressed: () =>
+                                            _applySelectionFormat('*', '*'),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.format_list_bulleted,
+                                        tooltip: 'Bullet List',
+                                        onPressed: () => _applyLinePrefix('- '),
+                                      ),
+                                      _buildFormatButton(
+                                        icon: Icons.title,
+                                        tooltip: 'Heading',
+                                        onPressed: () =>
+                                            _applyLinePrefix('### '),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(height: 1),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: TextField(
+                                    controller: _descriptionController,
+                                    focusNode: _descriptionFocusNode,
+                                    maxLines: 6,
+                                    enableInteractiveSelection: true,
+                                    keyboardType: TextInputType.multiline,
+                                    decoration: const InputDecoration(
+                                      hintText:
+                                          'Describe your concern or feedback...',
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 16),
                           CheckboxListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('AP-Specific Concern'),
-                            subtitle: const Text(
-                              'Check if this relates to Advanced Placement courses or exams',
-                            ),
-                            value: _apOnly,
-                            onChanged: (val) =>
-                                setState(() => _apOnly = val ?? false),
-                          ),
-                          CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
                             title: const Text('Discreet Submission'),
                             subtitle: const Text(
-                              'Conceals name from regular viewing (Maintains admin audit trail)',
+                              'Hide author name from general views',
+                              style: TextStyle(fontSize: 12),
                             ),
                             value: _isDiscreet,
                             onChanged: (val) =>
                                 setState(() => _isDiscreet = val ?? false),
+                          ),
+                          CheckboxListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: const Text('AP-Only Issue'),
+                            subtitle: const Text(
+                              'Flag for AP curriculum coordinators',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            value: _apOnly,
+                            onChanged: (val) =>
+                                setState(() => _apOnly = val ?? false),
                           ),
                         ],
                       ),
@@ -176,24 +327,30 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: isSubmitting
-                            ? null
-                            : () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: TextButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: isSubmitting ? null : _submit,
-                        child: isSubmitting
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Submit Ticket'),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _handleSubmit,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(_isEditing ? 'Save Changes' : 'Submit'),
+                        ),
                       ),
                     ],
                   ),
@@ -205,6 +362,7 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
               bottom: 0,
               child: GestureDetector(
                 onPanUpdate: (details) {
+                  if (!mounted) return;
                   setState(() {
                     _dialogWidth = (_dialogWidth + details.delta.dx).clamp(
                       _minWidth,
@@ -233,6 +391,22 @@ class _SubmitTicketDialogState extends ConsumerState<SubmitTicketDialog> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFormatButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: IconButton(
+        icon: Icon(icon, size: 18),
+        tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        onPressed: onPressed,
       ),
     );
   }

@@ -1,5 +1,5 @@
-import 'package:amlystuhub/features/auth/domain/models /user_model.dart';
-import 'package:amlystuhub/features/auth/domain/models /user_role.dart';
+import 'package:amlystuhub/features/auth/domain/models%20/user_model.dart';
+import 'package:amlystuhub/features/auth/domain/models%20/user_role.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -46,18 +46,21 @@ class AuthService {
     UserCredential? credential;
 
     try {
-      if (email.trim().isEmpty ||
+      final cleanEmail = email.trim().toLowerCase();
+
+      if (cleanEmail.isEmpty ||
           name.trim().isEmpty ||
           password.trim().isEmpty) {
         throw 'Please fill in all fields.';
       }
 
-      if (!email.trim().toLowerCase().endsWith('@stu.amly.us')) {
-        throw 'Access Denied: You must use your official @stu.amly.us school email.';
+      if (!cleanEmail.endsWith('@stu.amly.us') &&
+          !cleanEmail.endsWith('@amly.us')) {
+        throw 'Access Denied: You must use an official @amly.us or @stu.amly.us school email.';
       }
 
       credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
+        email: cleanEmail,
         password: password,
       );
 
@@ -65,7 +68,7 @@ class AuthService {
       final newUser = UserModel(
         uid: credential.user!.uid,
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: cleanEmail,
         role: UserRole.student, // Type-safe initialization
         gradeLevel: gradeLevel,
         isApStudent: isApStudent,

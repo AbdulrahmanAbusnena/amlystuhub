@@ -77,6 +77,35 @@ class TicketModel {
     this.internalNote,
     required this.createdAt,
   });
+  TicketModel copyWith({
+    String? id,
+    String? subject,
+    String? description,
+    TicketCategory? category,
+    TicketStatus? status,
+    bool? isDiscreet,
+    bool? apOnly,
+    String? authorId,
+    String? authorName,
+    String? authorEmail,
+    String? internalNote,
+    DateTime? createdAt,
+  }) {
+    return TicketModel(
+      id: id ?? this.id,
+      subject: subject ?? this.subject,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      status: status ?? this.status,
+      isDiscreet: isDiscreet ?? this.isDiscreet,
+      apOnly: apOnly ?? this.apOnly,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      authorEmail: authorEmail ?? this.authorEmail,
+      internalNote: internalNote ?? this.internalNote,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   factory TicketModel.fromJson(Map<String, dynamic> json, String id) {
     return TicketModel(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/models/advocacy_models.dart';
 
 class SurveyCard extends StatelessWidget {
@@ -7,12 +7,16 @@ class SurveyCard extends StatelessWidget {
 
   const SurveyCard({super.key, required this.survey});
 
-  Future<void> _launchSurveyUrl() async {
-    if (await canLaunchUrlString(survey.googleFormUrl)) {
-      await launchUrlString(
-        survey.googleFormUrl,
-        mode: LaunchMode.externalApplication,
-      );
+  Future<void> _launchSurveyUrl(BuildContext context) async {
+    final uri = Uri.parse(survey.googleFormUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open survey link.')),
+        );
+      }
     }
   }
 
@@ -22,10 +26,10 @@ class SurveyCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
@@ -33,53 +37,39 @@ class SurveyCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(6),
-                ),
+              Expanded(
                 child: Text(
-                  'Grade ${survey.targetGrade}',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
+                  survey.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const Spacer(),
-              Icon(
-                Icons.assignment_outlined,
-                size: 18,
-                color: colorScheme.onSurfaceVariant,
-              ),
+              if (survey.targetGrade != null && survey.targetGrade.isNotEmpty)
+                Chip(
+                  label: Text(
+                    survey.targetGrade,
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
-            survey.title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
+            survey.description,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
-          if (survey.description.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              survey.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: _launchSurveyUrl,
+            child: FilledButton.icon(
+              onPressed: () => _launchSurveyUrl(context),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('Open Form'),
+              label: const Text('Take Survey'),
             ),
           ),
         ],

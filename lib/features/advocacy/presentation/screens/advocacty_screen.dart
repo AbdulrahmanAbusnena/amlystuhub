@@ -1,10 +1,11 @@
 import 'package:amlystuhub/features/advocacy/presentation/state/advocacy_controller.dart';
 import 'package:amlystuhub/features/advocacy/presentation/widgets/advocacy_header.dart';
 import 'package:amlystuhub/features/advocacy/presentation/widgets/survey_card.dart';
+import 'package:amlystuhub/features/auth/domain/models%20/user_role.dart';
+import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../auth/presentation /providers/auth_providers.dart'
-    show currentUserModelProvider;
+
 import '../../domain/models/advocacy_models.dart';
 import '../widgets/ticket_card.dart';
 
@@ -13,11 +14,19 @@ class AdvocacyHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final surveysAsync = ref.watch(activeSurveysStreamProvider);
-    final userTicketsAsync = ref.watch(userTicketsStreamProvider);
     final userAsync = ref.watch(currentUserModelProvider);
+    final user = userAsync.value;
 
-    final isLeadership = userAsync.value?.role.canPublishAnnouncements ?? false;
+    final isLeadership = user != null && user.role == UserRole.stuCoAdmin;
+
+    final surveysAsync = isLeadership
+        ? ref.watch(allSurveysStreamProvider)
+        : ref.watch(activeSurveysStreamProvider);
+
+    final ticketsAsync = isLeadership
+        ? ref.watch(allTicketsStreamProvider)
+        : ref.watch(userTicketsStreamProvider);
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -69,7 +78,8 @@ class AdvocacyHubScreen extends ConsumerWidget {
                                   Expanded(
                                     flex: 4,
                                     child: _MyTicketsSection(
-                                      ticketsAsync: userTicketsAsync,
+                                      ticketsAsync: ticketsAsync,
+                                      isLeadershipView: isLeadership,
                                     ),
                                   ),
                                 ],
@@ -79,7 +89,8 @@ class AdvocacyHubScreen extends ConsumerWidget {
                                   _SurveysSection(surveysAsync: surveysAsync),
                                   const SizedBox(height: 32),
                                   _MyTicketsSection(
-                                    ticketsAsync: userTicketsAsync,
+                                    ticketsAsync: ticketsAsync,
+                                    isLeadershipView: isLeadership,
                                   ),
                                   const SizedBox(height: 32),
                                 ],
@@ -171,8 +182,12 @@ class _SurveysSection extends StatelessWidget {
 
 class _MyTicketsSection extends StatelessWidget {
   final AsyncValue<List<TicketModel>> ticketsAsync;
+  final bool isLeadershipView;
 
-  const _MyTicketsSection({required this.ticketsAsync});
+  const _MyTicketsSection({
+    required this.ticketsAsync,
+    required this.isLeadershipView,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +200,9 @@ class _MyTicketsSection extends StatelessWidget {
         Row(
           children: [
             Text(
-              'My Concerns & Reports',
+              isLeadershipView
+                  ? 'All Concerns & Reports'
+                  : 'My Concerns & Reports',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -217,7 +234,9 @@ class _MyTicketsSection extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'You have not submitted any concerns yet.',
+                    isLeadershipView
+                        ? 'No submitted concerns found.'
+                        : 'You have not submitted any concerns yet.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -231,8 +250,10 @@ class _MyTicketsSection extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: tickets.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) =>
-                  TicketCard(ticket: tickets[index]),
+              itemBuilder: (context, index) => TicketCard(
+                ticket: tickets[index],
+                isLeadershipView: isLeadershipView,
+              ),
             );
           },
         ),
