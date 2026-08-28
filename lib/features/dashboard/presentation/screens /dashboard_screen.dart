@@ -6,10 +6,23 @@ import 'package:amlystuhub/features/dashboard/presentation/widget/custom_top_nav
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   final Function(int)? onNavigateToTab;
 
   const DashboardScreen({super.key, this.onNavigateToTab});
+
+  @override
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _showCreateAnnouncementDialog(BuildContext context) {
     showDialog(
@@ -18,14 +31,45 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  void _showSubmitIdeaDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Submit Idea or Feedback'),
+        content: const TextField(
+          maxLines: 4,
+          decoration: InputDecoration(
+            hintText: 'Share your suggestion for the Student Council...',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Feedback submitted to StuCo!')),
+              );
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final userAsync = ref.watch(currentUserModelProvider);
     final user = userAsync.value;
     final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
 
     return Scaffold(
-      appBar: CustomTopNavBar(onNavigateToTab: onNavigateToTab),
+      appBar: CustomTopNavBar(onNavigateToTab: widget.onNavigateToTab),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth >= 960;
@@ -42,22 +86,26 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header Banner
-                    _buildHeaderBanner(context, user?.name ?? 'Student'),
+                    // Dynamic Header Banner with Integrated Search Input
+                    _buildHeaderBannerWithSearch(
+                      context,
+                      user?.name ?? 'Student',
+                    ),
                     const SizedBox(height: 24),
 
-                    // Grid Content Area
+                    // Content Layout Grid
                     if (isDesktop)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Primary Main Feed Column (60% width)
+                          // Primary Column
                           Expanded(
                             flex: 3,
                             child: Column(
                               children: [
                                 RecentAnnouncementsWidget(
-                                  onViewAllTap: () => onNavigateToTab?.call(1),
+                                  onViewAllTap: () =>
+                                      widget.onNavigateToTab?.call(1),
                                 ),
                                 const SizedBox(height: 20),
                                 _buildAcademicOverviewWidget(context),
@@ -66,7 +114,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 24),
 
-                          // Secondary Unified Sidebar Panel (40% width)
+                          // Sidebar Column (Unified Card Container)
                           Expanded(
                             flex: 2,
                             child: Card(
@@ -93,6 +141,8 @@ class DashboardScreen extends ConsumerWidget {
                                     _buildAdvocacySection(context),
                                     const Divider(height: 32),
                                     _buildScheduleSection(context),
+                                    const Divider(height: 32),
+                                    _buildStuCoContactsSection(context),
                                   ],
                                 ),
                               ),
@@ -114,7 +164,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           RecentAnnouncementsWidget(
-                            onViewAllTap: () => onNavigateToTab?.call(1),
+                            onViewAllTap: () => widget.onNavigateToTab?.call(1),
                           ),
                           const SizedBox(height: 16),
                           Card(
@@ -144,11 +194,12 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderBanner(BuildContext context, String userName) {
+  Widget _buildHeaderBannerWithSearch(BuildContext context, String userName) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
@@ -170,6 +221,46 @@ class DashboardScreen extends ConsumerWidget {
           Text(
             'Your central hub for academic updates, student voice, and announcements.',
             style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 16),
+          // Integrated Search Field
+          SizedBox(
+            height: 44,
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                // Perform filtering or search state updates
+              },
+              decoration: InputDecoration(
+                hintText:
+                    'Search announcements, AP packages, or policy updates...',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: colorScheme.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -208,12 +299,12 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ActionChip(
               avatar: Icon(
-                Icons.campaign_outlined,
+                Icons.lightbulb_outline,
                 size: 16,
                 color: colorScheme.primary,
               ),
-              label: const Text('Announcements'),
-              onPressed: () => onNavigateToTab?.call(1),
+              label: const Text('Submit Idea'),
+              onPressed: () => _showSubmitIdeaDialog(context),
             ),
             ActionChip(
               avatar: Icon(
@@ -222,7 +313,7 @@ class DashboardScreen extends ConsumerWidget {
                 color: colorScheme.primary,
               ),
               label: const Text('Academics'),
-              onPressed: () => onNavigateToTab?.call(2),
+              onPressed: () => widget.onNavigateToTab?.call(2),
             ),
             ActionChip(
               avatar: Icon(
@@ -231,7 +322,7 @@ class DashboardScreen extends ConsumerWidget {
                 color: colorScheme.primary,
               ),
               label: const Text('Advocacy'),
-              onPressed: () => onNavigateToTab?.call(3),
+              onPressed: () => widget.onNavigateToTab?.call(3),
             ),
           ],
         ),
@@ -288,7 +379,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               TextButton(
-                onPressed: () => onNavigateToTab?.call(3),
+                onPressed: () => widget.onNavigateToTab?.call(3),
                 child: const Text('Open'),
               ),
             ],
@@ -373,6 +464,58 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildStuCoContactsSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Student Council Leads',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        _buildContactTile(
+          context,
+          title: 'Academic Dept',
+          lead: 'AP & Pre-AP Advisory',
+        ),
+        const SizedBox(height: 6),
+        _buildContactTile(
+          context,
+          title: 'Advocacy Board',
+          lead: 'Policy & Student Rights',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactTile(
+    BuildContext context, {
+    required String title,
+    required String lead,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Icon(Icons.shield_outlined, size: 16, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+        ),
+        Text(
+          lead,
+          style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAcademicOverviewWidget(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -399,7 +542,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => onNavigateToTab?.call(2),
+                  onPressed: () => widget.onNavigateToTab?.call(2),
                   child: const Text('Go to Hub'),
                 ),
               ],

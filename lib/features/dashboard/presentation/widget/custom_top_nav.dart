@@ -32,52 +32,57 @@ class CustomTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo, Title & Role Tag
+          // Cleaned-up Brand Title (No icon, clean typography)
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.hub_outlined,
-                  color: colorScheme.onPrimaryContainer,
-                  size: 20,
+              RichText(
+                text: TextSpan(
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    letterSpacing: -0.5,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'AMLY ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'StuHub',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                'AMLY StuHub',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (user != null)
+              if (user != null) ...[
+                const SizedBox(width: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
-                    vertical: 2,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     user.role.name,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: colorScheme.onSecondaryContainer,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
+              ],
             ],
           ),
 
-          // User Menu & Actions
+          // Right Actions & User Dropdown
           Row(
             children: [
               IconButton(
