@@ -1,7 +1,13 @@
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
+import 'package:amlystuhub/features/dashboard/domain/models/ui_vibes.dart';
+import 'package:amlystuhub/features/dashboard/presentation/providers/vibe_provider.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/recent_announcement.dart';
+
+import 'package:amlystuhub/features/dashboard/presentation/widget/cozy_view.dart';
 import 'package:amlystuhub/features/dashboard/presentation/widget/custom_top_nav.dart';
+import 'package:amlystuhub/features/dashboard/presentation/widget/dense_view.dart';
+import 'package:amlystuhub/features/dashboard/presentation/widget/minimalist_view.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +41,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vibe = ref.watch(uiVibeProvider);
+
+    // Delegate to alternative view widgets if non-standard vibe selected
+    switch (vibe) {
+      case UiVibe.minimalist:
+        return MinimalistDashboardView(onNavigateToTab: widget.onNavigateToTab);
+      case UiVibe.dense:
+        return DenseDashboardView(onNavigateToTab: widget.onNavigateToTab);
+      case UiVibe.cozyPastel:
+        return CozyPastelDashboardView(onNavigateToTab: widget.onNavigateToTab);
+      case UiVibe.standard:
+      default:
+        break; // Continue to render standard layout below
+    }
+
     final userAsync = ref.watch(currentUserModelProvider);
     final user = userAsync.value;
     final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
@@ -194,7 +215,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
-          // Search Field Widget
           SizedBox(
             height: 44,
             child: TextField(

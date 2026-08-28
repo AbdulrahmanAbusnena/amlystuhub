@@ -1,4 +1,6 @@
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
+import 'package:amlystuhub/features/dashboard/domain/models/ui_vibes.dart';
+import 'package:amlystuhub/features/dashboard/presentation/providers/vibe_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,7 +34,7 @@ class CustomTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Cleaned-up Brand Title (No icon, clean typography)
+          // Brand Title
           Row(
             children: [
               RichText(
@@ -82,15 +84,21 @@ class CustomTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
             ],
           ),
 
-          // Right Actions & User Dropdown
+          // Right Actions: Vibe Switcher, Notifications, User Menu
           Row(
             children: [
+              // Active UI Vibe Switcher Component
+              _buildVibeSelector(context, ref),
+              const SizedBox(width: 4),
+
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
                 tooltip: 'Notifications',
                 onPressed: () {},
               ),
               const SizedBox(width: 8),
+
+              // Profile / Account Dropdown
               PopupMenuButton<String>(
                 offset: const Offset(0, 48),
                 shape: RoundedRectangleBorder(
@@ -131,7 +139,9 @@ class CustomTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
                 onSelected: (value) {
-                  if (value == 'logout') {
+                  if (value == 'profile') {
+                    onNavigateToTab?.call(4);
+                  } else if (value == 'logout') {
                     ref.read(authServiceProvider).signOut();
                   }
                 },
@@ -166,6 +176,37 @@ class CustomTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVibeSelector(BuildContext context, WidgetRef ref) {
+    final currentVibe = ref.watch(uiVibeProvider);
+
+    return PopupMenuButton<UiVibe>(
+      icon: const Icon(Icons.palette_outlined),
+      tooltip: 'Select UI Vibe',
+      initialValue: currentVibe,
+      onSelected: (UiVibe newVibe) {
+        ref.read(uiVibeProvider.notifier).setVibe(newVibe);
+      },
+      itemBuilder: (context) => UiVibe.values.map((vibe) {
+        return PopupMenuItem<UiVibe>(
+          value: vibe,
+          child: Row(
+            children: [
+              Icon(
+                currentVibe == vibe
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(vibe.displayName),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }
