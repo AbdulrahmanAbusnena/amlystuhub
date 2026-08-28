@@ -4,6 +4,8 @@ import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_screen.dart';
+import 'package:amlystuhub/features/profile/presentation/screens/profile_admin_view.dart';
+import 'package:amlystuhub/features/profile/presentation/screens/profile_screen.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +18,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/dashboard',
     redirect: (context, state) {
       final authAsync = ref.read(authStreamProvider);
+      final userModelAsync = ref.read(currentUserModelProvider);
       final user = authAsync.value;
+      final userModel = userModelAsync.value;
 
       final isAuthPage =
           state.matchedLocation == '/login' ||
@@ -29,6 +33,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (isAuthPage) {
         return '/dashboard';
+      }
+
+      // Restrict Admin Profile Requests route to StuCo Admins
+      if (state.matchedLocation == '/admin/profile-requests') {
+        if (userModel == null || !userModel.isStuCoAdmin) {
+          return '/dashboard';
+        }
       }
 
       return null;
@@ -54,6 +65,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               case 3:
                 context.go('/advocacy');
                 break;
+              case 4:
+                context.go('/profile');
+                break;
               default:
                 context.go('/dashboard');
                 break;
@@ -72,6 +86,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/advocacy',
         builder: (context, state) => const AdvocacyHubScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/admin/profile-requests',
+        builder: (context, state) => const AdminProfileRequestsPage(),
       ),
     ],
   );

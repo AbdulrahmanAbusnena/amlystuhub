@@ -5,6 +5,7 @@ import 'package:amlystuhub/features/dashboard/presentation/widget/custom_top_nav
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   final Function(int)? onNavigateToTab;
@@ -37,6 +38,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final userAsync = ref.watch(currentUserModelProvider);
     final user = userAsync.value;
     final isPrivilegedUser = user != null && user.role.canPublishAnnouncements;
+    final isStuCoAdmin = user != null && user.isStuCoAdmin;
 
     return Scaffold(
       appBar: CustomTopNavBar(onNavigateToTab: widget.onNavigateToTab),
@@ -112,6 +114,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                     _buildQuickActionsSection(
                                       context,
                                       isPrivilegedUser,
+                                      isStuCoAdmin,
                                     ),
                                     const Divider(height: 32),
                                     _buildScheduleSection(context),
@@ -127,18 +130,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     else
                       Column(
                         children: [
-                          if (isPrivilegedUser) ...[
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: _buildQuickActionsSection(
-                                  context,
-                                  isPrivilegedUser,
-                                ),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: _buildQuickActionsSection(
+                                context,
+                                isPrivilegedUser,
+                                isStuCoAdmin,
                               ),
                             ),
-                            const SizedBox(height: 16),
-                          ],
+                          ),
+                          const SizedBox(height: 16),
                           RecentAnnouncementsWidget(
                             onViewAllTap: () => widget.onNavigateToTab?.call(1),
                           ),
@@ -286,6 +288,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildQuickActionsSection(
     BuildContext context,
     bool isPrivilegedUser,
+    bool isStuCoAdmin,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -303,7 +306,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            // Privileged StuCo Action (New Post)
             if (isPrivilegedUser)
               ActionChip(
                 avatar: Icon(
@@ -316,7 +318,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ActionChip(
               avatar: Icon(
-                Icons.add_comment_outlined,
+                Icons.campaign_outlined,
                 size: 16,
                 color: colorScheme.primary,
               ),
@@ -341,6 +343,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               label: const Text('Advocacy'),
               onPressed: () => widget.onNavigateToTab?.call(3),
             ),
+            ActionChip(
+              avatar: Icon(
+                Icons.person_outline,
+                size: 16,
+                color: colorScheme.primary,
+              ),
+              label: const Text('Profile'),
+              onPressed: () => widget.onNavigateToTab?.call(4),
+            ),
+            if (isStuCoAdmin)
+              ActionChip(
+                avatar: Icon(
+                  Icons.admin_panel_settings_outlined,
+                  size: 16,
+                  color: colorScheme.error,
+                ),
+                label: const Text('Profile Requests'),
+                onPressed: () => context.go('/admin/profile-requests'),
+              ),
           ],
         ),
       ],

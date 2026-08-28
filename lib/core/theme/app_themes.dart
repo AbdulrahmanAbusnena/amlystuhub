@@ -15,7 +15,6 @@ class AppThemes {
       case AppFontKey.roboto:
         return GoogleFonts.robotoTextTheme(baseTheme);
       case AppFontKey.inter:
-      default:
         return GoogleFonts.interTextTheme(baseTheme);
     }
   }
