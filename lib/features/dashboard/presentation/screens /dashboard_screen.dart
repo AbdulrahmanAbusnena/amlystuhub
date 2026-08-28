@@ -17,6 +17,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void dispose() {
@@ -28,37 +29,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => const CreateAnnouncementDialog(),
-    );
-  }
-
-  void _showSubmitIdeaDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Submit Idea or Feedback'),
-        content: const TextField(
-          maxLines: 4,
-          decoration: InputDecoration(
-            hintText: 'Share your suggestion for the Student Council...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Feedback submitted to StuCo!')),
-              );
-            },
-            child: const Text('Submit'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -86,19 +56,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Dynamic Header Banner with Integrated Search Input
+                    // Header Banner with Real-Time Search Bar
                     _buildHeaderBannerWithSearch(
                       context,
                       user?.name ?? 'Student',
                     ),
                     const SizedBox(height: 24),
 
-                    // Content Layout Grid
+                    // Active Search Filter Bar Indicator
+                    if (_searchQuery.isNotEmpty) ...[
+                      _buildSearchIndicatorBar(context),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Layout Grid
                     if (isDesktop)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Primary Column
+                          // Primary Column (Filtered Announcements & Academic Hub)
                           Expanded(
                             flex: 3,
                             child: Column(
@@ -114,7 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                           const SizedBox(width: 24),
 
-                          // Sidebar Column (Unified Card Container)
+                          // Sidebar Panel
                           Expanded(
                             flex: 2,
                             child: Card(
@@ -138,8 +114,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       isPrivilegedUser,
                                     ),
                                     const Divider(height: 32),
-                                    _buildAdvocacySection(context),
-                                    const Divider(height: 32),
                                     _buildScheduleSection(context),
                                     const Divider(height: 32),
                                     _buildStuCoContactsSection(context),
@@ -153,25 +127,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     else
                       Column(
                         children: [
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: _buildQuickActionsSection(
-                                context,
-                                isPrivilegedUser,
+                          if (isPrivilegedUser) ...[
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: _buildQuickActionsSection(
+                                  context,
+                                  isPrivilegedUser,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
+                            const SizedBox(height: 16),
+                          ],
                           RecentAnnouncementsWidget(
                             onViewAllTap: () => widget.onNavigateToTab?.call(1),
-                          ),
-                          const SizedBox(height: 16),
-                          Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: _buildAdvocacySection(context),
-                            ),
                           ),
                           const SizedBox(height: 16),
                           _buildAcademicOverviewWidget(context),
@@ -201,10 +170,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Column(
@@ -223,24 +192,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
-          // Integrated Search Field
+          // Search Field Widget
           SizedBox(
             height: 44,
             child: TextField(
               controller: _searchController,
               onChanged: (value) {
-                // Perform filtering or search state updates
+                setState(() {
+                  _searchQuery = value.trim().toLowerCase();
+                });
               },
               decoration: InputDecoration(
-                hintText:
-                    'Search announcements, AP packages, or policy updates...',
+                hintText: 'Search announcements by title or content...',
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, size: 18),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {});
+                          setState(() {
+                            _searchQuery = '';
+                          });
                         },
                       )
                     : null,
@@ -259,6 +231,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     color: colorScheme.outlineVariant.withValues(alpha: 0.6),
                   ),
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchIndicatorBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.filter_alt_outlined, size: 18, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            'Filtering results by: "$_searchQuery"',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+              fontSize: 13,
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            child: Text(
+              'Clear filter',
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
               ),
             ),
           ),
@@ -287,6 +303,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
+            // Privileged StuCo Action (New Post)
             if (isPrivilegedUser)
               ActionChip(
                 avatar: Icon(
@@ -299,12 +316,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ActionChip(
               avatar: Icon(
-                Icons.lightbulb_outline,
+                Icons.add_comment_outlined,
                 size: 16,
                 color: colorScheme.primary,
               ),
-              label: const Text('Submit Idea'),
-              onPressed: () => _showSubmitIdeaDialog(context),
+              label: const Text('Announcements'),
+              onPressed: () => widget.onNavigateToTab?.call(1),
             ),
             ActionChip(
               avatar: Icon(
@@ -325,65 +342,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               onPressed: () => widget.onNavigateToTab?.call(3),
             ),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAdvocacySection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Advocacy & Student Voice',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Icon(
-              Icons.how_to_vote_outlined,
-              size: 18,
-              color: colorScheme.primary,
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Voice your concerns or complete active StuCo policy surveys.',
-          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.assignment_outlined,
-                size: 20,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  '1 Active Survey Available',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                ),
-              ),
-              TextButton(
-                onPressed: () => widget.onNavigateToTab?.call(3),
-                child: const Text('Open'),
-              ),
-            ],
-          ),
         ),
       ],
     );
@@ -465,8 +423,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildStuCoContactsSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
