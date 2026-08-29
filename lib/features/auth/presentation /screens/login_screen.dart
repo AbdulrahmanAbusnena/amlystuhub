@@ -1,11 +1,9 @@
-import 'package:amlystuhub/core/widgets/retro_window_shell.dart';
 import 'package:amlystuhub/features/auth/presentation%20/controllers/auth_controllers.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
-import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:amlystuhub/core/widgets/input_field.dart';
+import 'package:amlystuhub/core/widgets/app_header.dart';
 import 'package:amlystuhub/core/widgets/primary_button.dart';
 
 class Login extends ConsumerStatefulWidget {
@@ -18,6 +16,7 @@ class Login extends ConsumerStatefulWidget {
 class _LoginState extends ConsumerState<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   void _loginUser() {
     final email = _emailController.text.trim();
@@ -25,12 +24,11 @@ class _LoginState extends ConsumerState<Login> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all validation access fields.'),
-        ),
+        const SnackBar(content: Text('Please fill in all required fields.')),
       );
       return;
     }
+
     ref.read(authStateProvider.notifier).login(email, password);
   }
 
@@ -43,8 +41,10 @@ class _LoginState extends ConsumerState<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final authState = ref.watch(authStateProvider);
-    final isLoading = authState.status == AuthState.loading();
+    final isLoading = authState.status == AuthStatus.loading;
 
     ref.listen<AuthState>(authStateProvider, (previous, next) {
       if (next.status == AuthStatus.error && next.errorMessage != null) {
@@ -53,161 +53,239 @@ class _LoginState extends ConsumerState<Login> {
         ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
         ref.read(authStateProvider.notifier).resetState();
       } else if (next.status == AuthStatus.authenticated) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('WELCOME BACK!')));
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const DashboardScreen()),
-        );
+        context.go('/dashboard');
       }
     });
-    // UI
-    return RetroWindowShell(
-      title: 'Welcome Back, Login',
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isSmall = constraints.maxWidth < 700;
-                final imageSize = isSmall ? 140.0 : 210.0;
 
-                final imageWidget = ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: imageSize,
-                    height: imageSize,
-                    color: Colors.grey[300],
-                    child: Image.asset(
-                      'assets/cat2.jpg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (ctx, _, _) =>
-                          const Icon(Icons.computer, size: 40),
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: SelectionArea(
+          child: Column(
+            children: [
+              const AppHeader(),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 32.0,
                     ),
-                  ),
-                );
-
-                final formColumn = Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'SYSTEM ACCESS',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                          color: Colors.black,
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.shadow.withValues(alpha: 0.04),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Please authenticate via your authorized @stu.amly.us credentials to initialize connection.',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Accent Top Header Strip
+                          Container(
+                            height: 6,
+                            width: double.infinity,
+                            color: colorScheme.primary,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(32.0),
+                            child: _buildCardContent(
+                              context,
+                              isLoading: isLoading,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      _buildInputLabel('▶ Email:_'),
-                      _buildInputField(
-                        controller: _emailController,
-                        hintText: '[Enter Your Email]',
-                        icon: const Text('💾', style: TextStyle(fontSize: 16)),
-                      ),
-                      const SizedBox(height: 35),
-                      _buildInputLabel('▶ Password:_'),
-                      _buildInputField(
-                        controller: _passwordController,
-                        hintText: '[Enter Password....]',
-                        obscureText: true,
-                        icon: const Text('🔑', style: TextStyle(fontSize: 16)),
-                      ),
-                      const SizedBox(height: 40),
-                    ],
-                  ),
-                );
-
-                if (isSmall) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      imageWidget,
-                      const SizedBox(height: 12),
-                      formColumn,
-                    ],
-                  );
-                }
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 30),
-                    imageWidget,
-                    const SizedBox(width: 20),
-                    formColumn,
-                  ],
-                );
-              },
-            ),
-            SizedBox(height: 50),
-            PrimaryButton(
-              label: isLoading ? 'AUTHENTICATING...' : 'Login',
-              onPressed: isLoading ? null : _loginUser,
-              width: double.infinity,
-            ),
-            const SizedBox(height: 20),
-
-            Center(
-              child: GestureDetector(
-                onTap: () => context.go('/signup'),
-                child: RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black,
-                      fontSize: 14,
                     ),
-                    children: const [
-                      TextSpan(text: "You don't have an account? "),
-                      TextSpan(
-                        text: 'Sign Up',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Custom Build Input
-  Widget _buildInputLabel(String label) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: Text(
-      label,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-        color: Colors.black,
-      ),
-    ),
-  );
-  // Custom Field Input
-  Widget _buildInputField({
+  Widget _buildCardContent(BuildContext context, {required bool isLoading}) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Brand Badge
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'AMLY STUHUB',
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        Text(
+          'Welcome Back',
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.8,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Login with your student credentials.',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        _buildLabel('Email Address'),
+        _buildTextField(
+          controller: _emailController,
+          hintText: 'student@amlyschool.edu',
+          prefixIcon: Icons.email_outlined,
+        ),
+        const SizedBox(height: 18),
+
+        _buildLabel('Password'),
+        _buildTextField(
+          controller: _passwordController,
+          hintText: 'Enter your password',
+          prefixIcon: Icons.lock_outline,
+          obscureText: _obscurePassword,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        PrimaryButton(
+          label: isLoading ? 'AUTHENTICATING...' : 'Log In ',
+          onPressed: isLoading ? null : _loginUser,
+          width: double.infinity,
+          height: 50,
+        ),
+        const SizedBox(height: 24),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Don't have an account? ",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.go('/signup'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
-    required Widget icon,
+    required IconData prefixIcon,
     bool obscureText = false,
-  }) => InputField(
-    controller: controller,
-    hintText: hintText,
-    icon: icon,
-    obscureText: obscureText,
-  );
+    Widget? suffixIcon,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: Icon(prefixIcon, color: colorScheme.primary),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
 }
