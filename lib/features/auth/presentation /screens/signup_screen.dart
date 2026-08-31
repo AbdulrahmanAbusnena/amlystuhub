@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amlystuhub/core/widgets/app_header.dart';
-import 'package:amlystuhub/core/widgets/input_field.dart';
 import 'package:amlystuhub/core/widgets/primary_button.dart';
 
 class SignUp extends ConsumerStatefulWidget {

@@ -426,7 +426,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'Today',
+                  'Sep 6',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -464,6 +464,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildStuCoContactsSection(BuildContext context) {
+    final leads = [
+      {'dept': 'Academic Dept', 'lead': 'Head of Academics'},
+      {'dept': 'AP Academics', 'lead': 'Head of AP'},
+      {'dept': 'Technology Dept', 'lead': 'Head of Tech'},
+      {'dept': 'Advocacy Board', 'lead': 'Policy Lead'},
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -474,16 +481,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        _buildContactTile(
-          context,
-          title: 'Academic Dept',
-          lead: 'AP & Pre-AP Advisory',
-        ),
-        const SizedBox(height: 6),
-        _buildContactTile(
-          context,
-          title: 'Advocacy Board',
-          lead: 'Policy & Student Rights',
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: leads.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 6),
+          itemBuilder: (context, index) {
+            final item = leads[index];
+            return _buildContactTile(
+              context,
+              title: item['dept']!,
+              lead: item['lead']!,
+            );
+          },
         ),
       ],
     );
@@ -565,7 +575,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Pre-AP & AP Resources',
+                          'AP Resources',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
