@@ -58,6 +58,19 @@ class AcademicHubScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                        ),
+                        child: const _SectionHeading(title: 'Courses'),
+                      ),
+                    ),
+                  ),
+                ),
 
                 coursesAsync.when(
                   loading: () => const SliverFillRemaining(
