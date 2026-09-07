@@ -53,7 +53,7 @@ class AcademicHubScreen extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
                         ),
-                        child: const _SectionHeading(title: 'Courses'),
+                        child: const _SectionHeading(title: 'General Courses'),
                       ),
                     ),
                   ),
@@ -66,7 +66,7 @@ class AcademicHubScreen extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
                         ),
-                        child: const _SectionHeading(title: 'Courses'),
+                        child: const _SectionHeading(title: 'AP Courses'),
                       ),
                     ),
                   ),
