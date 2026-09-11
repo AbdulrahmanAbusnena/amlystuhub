@@ -47,4 +47,6 @@ app.*.map.json
 node_modules/
 .env 
 
-/functions/
+/functions/ 
+
+*.env 
