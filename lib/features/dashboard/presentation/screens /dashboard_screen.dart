@@ -372,7 +372,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               label: const Text('Profile'),
               onPressed: () => widget.onNavigateToTab?.call(4),
             ),
-            if (isStuCoAdmin)
+            if (isStuCoAdmin) ...[
+              ActionChip(
+                avatar: Icon(
+                  Icons.event_available_outlined,
+                  size: 16,
+                  color: colorScheme.primary,
+                ),
+                label: const Text('Event Management'),
+                onPressed: () => context.go('/event-management'),
+              ),
               ActionChip(
                 avatar: Icon(
                   Icons.admin_panel_settings_outlined,
@@ -382,6 +391,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 label: const Text('Profile Requests'),
                 onPressed: () => context.go('/admin/profile-requests'),
               ),
+            ],
           ],
         ),
       ],
