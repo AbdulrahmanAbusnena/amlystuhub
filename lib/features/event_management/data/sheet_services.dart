@@ -21,20 +21,17 @@ class SheetService {
 
   static final String _spreadsheetId = dotenv.env['SPREADSHEET_ID'] ?? '';
 
-  Future<List<List<String>>> fetchAcceptingDelegates() async {
+  Future<List<List<String>>> fetchRoster() async {
     try {
       final gsheets = GSheets(_credentials);
 
       final spreadsheet = await gsheets.spreadsheet(_spreadsheetId);
 
-      final sheet = spreadsheet.worksheetByTitle('Responses');
+      final sheet =
+          spreadsheet.worksheetByTitle('Responses') ??
+          spreadsheet.worksheetByIndex(0);
 
-      if (sheet == null) {
-        throw Exception(
-          'Could not find the "Responses" worksheet in the spreadsheet.',
-        );
-        return [];
-      }
+      if (sheet == null) return [];
 
       final List<List<String>> rows = await sheet.values.allRows(fromRow: 2);
 
