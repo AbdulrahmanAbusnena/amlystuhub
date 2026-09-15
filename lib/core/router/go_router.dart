@@ -4,6 +4,7 @@ import 'package:amlystuhub/features/auth/presentation%20/screens/landing_screen.
 import 'package:amlystuhub/features/auth/presentation%20/screens/login_screen.dart';
 import 'package:amlystuhub/features/auth/presentation%20/screens/signup_screen.dart';
 import 'package:amlystuhub/features/dashboard/presentation/screens%20/dashboard_screen.dart';
+import 'package:amlystuhub/features/event_management/presentation/screens/event_management_screen.dart';
 import 'package:amlystuhub/features/profile/presentation/screens/profile_admin_view.dart';
 import 'package:amlystuhub/features/profile/presentation/screens/profile_screen.dart';
 
@@ -94,6 +95,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/profile-requests',
         builder: (context, state) => const AdminProfileRequestsPage(),
+      ),
+      GoRoute(
+        path: '/event-management',
+        builder: (context, state) => const EventManagementScreen(),
       ),
     ],
   );
