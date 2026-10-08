@@ -8,6 +8,7 @@ import 'package:amlystuhub/features/dashboard/presentation/widget/cozy_view.dart
 import 'package:amlystuhub/features/dashboard/presentation/widget/custom_top_nav.dart';
 import 'package:amlystuhub/features/dashboard/presentation/widget/dense_view.dart';
 import 'package:amlystuhub/features/dashboard/presentation/widget/minimalist_view.dart';
+import 'package:amlystuhub/features/dashboard/presentation/widget/reminder_banner.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,6 +84,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     _buildHeaderBannerWithSearch(
                       context,
                       user?.name ?? 'Student',
+                    ),
+                    ReminderBanner(
+                      title: 'Survey Reminder',
+                      message: 'Don\'t forget to complete the Survey.',
+                      icon: Icons.event_available_outlined,
+                      // onTap: isStuCoAdmin ? () => context.go('/event-management') : null,
                     ),
                     const SizedBox(height: 24),
 
