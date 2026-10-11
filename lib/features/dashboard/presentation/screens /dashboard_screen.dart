@@ -1,3 +1,5 @@
+// ignore_for_file: unreachable_switch_default
+
 import 'package:amlystuhub/features/announcements/presentation/widgets/announcement_creation.dart';
 import 'package:amlystuhub/features/auth/presentation%20/providers/auth_providers.dart';
 import 'package:amlystuhub/features/dashboard/domain/models/ui_vibes.dart';
